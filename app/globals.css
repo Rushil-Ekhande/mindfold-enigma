@@ -5,7 +5,7 @@
    ============================================================================ */
 
 :root {
-  --background: #ffffff;
+  --background: #F5F3EF;
   --foreground: #0f172a;
   --primary: #6366f1;
   --primary-dark: #4f46e5;
@@ -101,4 +101,25 @@ body {
 
 .animate-slide-in-left {
   animation: slideInLeft 0.3s ease-out forwards;
+}
+
+/* Hover underline animation */
+.hover-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: currentColor;
+  transition: width 0.3s ease-in-out;
+}
+
+.hover-underline:hover::after {
+  width: 100%;
 }
