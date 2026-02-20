@@ -33,11 +33,14 @@ export default function JournalEntryPage({
     const [saving, setSaving] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    // Check if this is today's entry
-    const today = new Date().toISOString().split("T")[0];
-    const isToday = entryDate === today;
-    const isPast = entryDate < today;
-    const isFuture = entryDate > today;
+    // Check if this is today's entry (local time)
+    function getLocalDateString(date: Date) {
+        return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+    }
+    const todayLocal = getLocalDateString(new Date());
+    const isToday = entryDate === todayLocal;
+    const isPast = entryDate < todayLocal;
+    const isFuture = entryDate > todayLocal;
 
     const MAX_CHARS = 2000;
 
@@ -72,7 +75,12 @@ export default function JournalEntryPage({
         setSaving(false);
     }
 
-    const formattedDate = new Date(entryDate + "T00:00:00").toLocaleDateString("en-US", {
+    // Parse entryDate as local date to avoid timezone issues
+    function parseLocalDate(dateString: string) {
+        const [year, month, day] = dateString.split("-").map(Number);
+        return new Date(year, month - 1, day);
+    }
+    const formattedDate = parseLocalDate(entryDate).toLocaleDateString("en-US", {
         weekday: "long",
         year: "numeric",
         month: "long",
@@ -144,7 +152,7 @@ export default function JournalEntryPage({
                                             ? "No entry written for this day."
                                             : ""
                                 }
-                                className={`w-full h-64 px-4 py-3 border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground ${!isToday ? "bg-muted-bg/30 cursor-not-allowed" : ""
+                                className={`w-full h-96 px-4 py-3 border border-border rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors text-foreground ${!isToday ? "bg-muted-bg/30 cursor-not-allowed" : ""
                                     }`}
                             />
                             <div className="flex items-center justify-between mt-3">

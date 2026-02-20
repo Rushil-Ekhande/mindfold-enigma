@@ -77,8 +77,29 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // Run AI analysis on the journal entry
-    const analysis = await analyzeJournalEntry(content);
+    // Log journal entry before AI call
+    console.log("[Journal API] Sending entry to AI:", { entry_date, content });
+    let analysis;
+    try {
+        analysis = await analyzeJournalEntry({ entryDate: entry_date, currentEntry: content });
+        console.log("[Journal API] AI response:", analysis);
+    } catch (err) {
+        console.error("[Journal API] AI analysis failed:", err);
+        if (err && err.message && (err.message.includes("quota") || err.message.includes("credit"))) {
+            console.error("[Journal API] AI credits exhausted or quota reached.");
+        }
+        // Fallback values
+        analysis = {
+            mental_health: 50,
+            stress: 50,
+            happiness: 50,
+            accountability: 50,
+            burnout_risk: 50,
+            mood: "Neutral",
+            emotional_summary:
+                "Thank you for sharing your thoughts today. I notice your willingness to reflect, and that takes real courage. Keep journaling to build a clearer picture of your journey."
+        };
+    }
 
     // Upsert the entry (create or update for this date)
     const { data, error } = await supabase

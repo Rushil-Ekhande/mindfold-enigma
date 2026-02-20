@@ -57,22 +57,22 @@ export default async function OverviewPage() {
     if (scored.length > 0) {
       avgMetrics.mental_health = Math.round(
         scored.reduce((a, e) => a + (e.mental_health_score || 0), 0) /
-          scored.length,
+        scored.length,
       );
       avgMetrics.happiness = Math.round(
         scored.reduce((a, e) => a + (e.happiness_score || 0), 0) /
-          scored.length,
+        scored.length,
       );
       avgMetrics.accountability = Math.round(
         scored.reduce((a, e) => a + (e.accountability_score || 0), 0) /
-          scored.length,
+        scored.length,
       );
       avgMetrics.stress = Math.round(
         scored.reduce((a, e) => a + (e.stress_score || 0), 0) / scored.length,
       );
       avgMetrics.burnout_risk = Math.round(
         scored.reduce((a, e) => a + (e.burnout_risk_score || 0), 0) /
-          scored.length,
+        scored.length,
       );
     }
   }
@@ -158,17 +158,26 @@ export default async function OverviewPage() {
     burnout_risk: e.burnout_risk_score || 0,
   }));
 
+  // Mood emoji based on average metrics
+  function getMoodEmoji(metrics) {
+    if (metrics.happiness >= 70 && metrics.mental_health >= 70) return "😄";
+    if (metrics.stress >= 70 || metrics.burnout_risk >= 70) return "😰";
+    if (metrics.happiness <= 30) return "😢";
+    if (metrics.mental_health <= 30) return "😔";
+    if (metrics.accountability >= 70) return "💪";
+    return "🙂";
+  }
+  const moodEmoji = getMoodEmoji(avgMetrics);
+
   return (
     <div className="max-w-7xl">
       {/* Page Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold text-gray-900">How You Are</h1>
-            {chartEntries[chartEntries.length - 1]?.mood && (
-                <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
-                    Feeling {chartEntries[chartEntries.length - 1].mood}
-                </span>
-            )}
+          <h1 className="text-3xl font-bold text-gray-900">How You Are</h1>
+          <span className="px-3 py-1 bg-primary/10 text-primary text-xl font-medium rounded-full border border-primary/20">
+            {moodEmoji}
+          </span>
         </div>
         <p className="text-gray-500 mt-1">
           Your mental health snapshot based on your journal entries

@@ -22,8 +22,11 @@ export default function JournalPage() {
   const daysInMonth = getDaysInMonth(year, month);
   const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
 
-  // Get today's date string for comparison
-  const today = new Date().toISOString().split("T")[0];
+  // Get today's date string for comparison (local time)
+  function getLocalDateString(date: Date) {
+    return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
+  }
+  const today = getLocalDateString(new Date());
 
   // Fetch entries for the current month
   const fetchEntries = useCallback(async () => {
@@ -96,13 +99,12 @@ export default function JournalPage() {
               <button
                 key={day}
                 onClick={() => openDay(day)}
-                className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all text-left ${
-                  isToday
+                className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all text-left ${isToday
                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
                     : entry
                       ? "border-border bg-white hover:border-primary/30 hover:shadow-sm"
                       : "border-border bg-white hover:border-muted"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-4">
                   <div className="text-center min-w-[50px]">
