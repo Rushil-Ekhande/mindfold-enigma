@@ -128,8 +128,15 @@ export async function POST(request: NextRequest) {
         .from("user_profiles")
         .upsert({ id: user.id }, { onConflict: "id", ignoreDuplicates: true });
 
+    // Remove any old relationship records for this user+therapist to avoid unique constraint
+    await adminSupabase
+        .from("therapist_patients")
+        .delete()
+        .eq("therapist_id", therapist_id)
+        .eq("user_id", user.id);
+
     // Create therapist-patient relationship
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
         .from("therapist_patients")
         .insert({
             therapist_id,
