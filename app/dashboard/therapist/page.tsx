@@ -270,11 +270,13 @@ export default function TherapistPage() {
 
     return (
       <div className="w-full">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-foreground">My Therapist</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+            My Therapist
+          </h1>
           <button
             onClick={unhireTherapist}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-danger border border-danger/30 hover:bg-danger/10 transition-colors"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-danger border border-danger/30 hover:bg-danger/10 transition-colors w-full sm:w-auto"
           >
             <UserX className="h-4 w-4" />
             End Relationship
@@ -282,19 +284,19 @@ export default function TherapistPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-1 bg-white rounded-xl border border-border p-1 mb-6 overflow-x-auto">
+        <div className="flex gap-1 bg-white rounded-xl border border-border p-1 mb-4 sm:mb-6 overflow-x-auto">
           {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap ${
                 activeTab === tab.key
                   ? "bg-primary text-white shadow-sm"
                   : "text-muted hover:text-foreground hover:bg-muted-bg"
               }`}
             >
               {tab.icon}
-              {tab.label}
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           ))}
         </div>
@@ -327,42 +329,42 @@ export default function TherapistPage() {
 
   return (
     <div className="w-full max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
           Find Your Therapist
         </h1>
-        <p className="text-gray-600">
+        <p className="text-sm sm:text-base text-gray-600">
           Connect with licensed mental health professionals
         </p>
       </div>
 
       {/* Search Bar */}
-      <div className="flex gap-3 mb-8">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6 sm:mb-8">
         <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && searchTherapists()}
             placeholder="Search by name or specialization..."
-            className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-gray-900 placeholder:text-gray-400"
+            className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-3.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-gray-900 placeholder:text-gray-400 text-sm sm:text-base"
           />
         </div>
         <button
           onClick={searchTherapists}
-          className="bg-primary text-white px-8 py-3.5 rounded-xl font-semibold hover:bg-primary-dark transition-all hover:shadow-lg"
+          className="bg-primary text-white px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-semibold hover:bg-primary-dark transition-all hover:shadow-lg text-sm sm:text-base"
         >
           Search
         </button>
       </div>
 
       {/* Therapist Cards */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {therapists.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-            <Search className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">
+          <div className="bg-white rounded-2xl border border-gray-200 p-8 sm:p-12 text-center">
+            <Search className="h-10 w-10 sm:h-12 sm:w-12 text-gray-300 mx-auto mb-2 sm:mb-3" />
+            <p className="text-sm sm:text-base text-gray-500">
               No therapists found. Try adjusting your search.
             </p>
           </div>
@@ -370,65 +372,67 @@ export default function TherapistPage() {
           therapists.map((therapist) => (
             <div
               key={therapist.id}
-              className="bg-white rounded-2xl border border-gray-200 p-6 hover:border-primary/40 hover:shadow-xl transition-all cursor-pointer group"
+              className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 hover:border-primary/40 hover:shadow-xl transition-all cursor-pointer group"
               onClick={() => setDetailTherapist(therapist)}
             >
-              <div className="flex items-start gap-5">
+              <div className="flex items-start gap-3 sm:gap-5">
                 {/* Avatar */}
-                <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center text-primary font-bold text-2xl flex-shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center text-primary font-bold text-lg sm:text-2xl shrink-0 group-hover:scale-105 transition-transform">
                   {(therapist.display_name || therapist.profiles.full_name)
                     .charAt(0)
                     .toUpperCase()}
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-bold text-lg text-gray-900">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                    <h3 className="font-bold text-base sm:text-lg text-gray-900">
                       {therapist.display_name || therapist.profiles.full_name}
                     </h3>
-                    <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
-                      <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                      <span className="text-sm font-semibold text-amber-700">
-                        {therapist.therapist_reviews &&
-                        therapist.therapist_reviews.length > 0
-                          ? (
-                              therapist.therapist_reviews.reduce(
-                                (sum, r) => sum + r.rating,
-                                0,
-                              ) / therapist.therapist_reviews.length
-                            ).toFixed(1)
-                          : Number(therapist.rating).toFixed(1)}
-                      </span>
-                    </div>
-                    {therapist.therapist_reviews &&
-                      therapist.therapist_reviews.length > 0 && (
-                        <span className="text-sm text-gray-500">
-                          ({therapist.therapist_reviews.length}{" "}
-                          {therapist.therapist_reviews.length === 1
-                            ? "review"
-                            : "reviews"}
-                          )
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-full">
+                        <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-amber-500 fill-amber-500" />
+                        <span className="text-xs sm:text-sm font-semibold text-amber-700">
+                          {therapist.therapist_reviews &&
+                          therapist.therapist_reviews.length > 0
+                            ? (
+                                therapist.therapist_reviews.reduce(
+                                  (sum, r) => sum + r.rating,
+                                  0,
+                                ) / therapist.therapist_reviews.length
+                              ).toFixed(1)
+                            : Number(therapist.rating).toFixed(1)}
                         </span>
-                      )}
+                      </div>
+                      {therapist.therapist_reviews &&
+                        therapist.therapist_reviews.length > 0 && (
+                          <span className="text-xs sm:text-sm text-gray-500">
+                            ({therapist.therapist_reviews.length}{" "}
+                            {therapist.therapist_reviews.length === 1
+                              ? "review"
+                              : "reviews"}
+                            )
+                          </span>
+                        )}
+                    </div>
                   </div>
-                  <p className="text-gray-600 mb-3 line-clamp-2">
+                  <p className="text-sm sm:text-base text-gray-600 mb-2 sm:mb-3 line-clamp-2">
                     {therapist.description ||
                       "Licensed mental health professional"}
                   </p>
 
                   {/* Qualifications */}
                   {therapist.qualifications?.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="flex flex-wrap gap-2 mb-2 sm:mb-3">
                       {therapist.qualifications.slice(0, 3).map((q, i) => (
                         <span
                           key={i}
-                          className="text-xs bg-primary/10 text-primary px-3 py-1.5 rounded-full font-medium"
+                          className="text-xs bg-primary/10 text-primary px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full font-medium"
                         >
                           {q}
                         </span>
                       ))}
                       {therapist.qualifications.length > 3 && (
-                        <span className="text-xs text-gray-500 px-2 py-1.5">
+                        <span className="text-xs text-gray-500 px-2 py-1 sm:py-1.5">
                           +{therapist.qualifications.length - 3} more
                         </span>
                       )}
@@ -437,7 +441,7 @@ export default function TherapistPage() {
 
                   {/* Quick pricing */}
                   {therapist.therapist_services?.length > 0 && (
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs sm:text-sm">
                       <span className="font-semibold text-gray-900">
                         From $
                         {Math.min(
@@ -447,7 +451,7 @@ export default function TherapistPage() {
                         )}
                         /session
                       </span>
-                      <span className="text-gray-400">·</span>
+                      <span className="text-gray-400 hidden sm:inline">·</span>
                       <span className="text-gray-500">Click to view plans</span>
                     </div>
                   )}
@@ -461,9 +465,9 @@ export default function TherapistPage() {
       {/* ── Therapist Detail Modal ──────────────────────────────────────── */}
       {detailTherapist && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-foreground">
+          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground">
                 {detailTherapist.display_name ||
                   detailTherapist.profiles.full_name}
               </h2>
@@ -476,8 +480,8 @@ export default function TherapistPage() {
             </div>
 
             {/* Profile Info */}
-            <div className="flex items-start gap-4 mb-6">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-2xl flex-shrink-0">
+            <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-lg sm:text-2xl shrink-0">
                 {(
                   detailTherapist.display_name ||
                   detailTherapist.profiles.full_name
@@ -498,7 +502,7 @@ export default function TherapistPage() {
                       return [1, 2, 3, 4, 5].map((s) => (
                         <Star
                           key={s}
-                          className={`h-4 w-4 ${
+                          className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
                             s <= Math.round(avgRating)
                               ? "text-accent fill-accent"
                               : "text-border"
@@ -507,7 +511,7 @@ export default function TherapistPage() {
                       ));
                     })()}
                   </div>
-                  <span className="text-sm text-muted">
+                  <span className="text-xs sm:text-sm text-muted">
                     {(() => {
                       const reviews = detailTherapist.therapist_reviews || [];
                       const avgRating =
@@ -529,7 +533,7 @@ export default function TherapistPage() {
                         : ""}
                   </span>
                 </div>
-                <p className="text-sm text-muted">
+                <p className="text-xs sm:text-sm text-muted">
                   {detailTherapist.description}
                 </p>
               </div>
@@ -537,7 +541,7 @@ export default function TherapistPage() {
 
             {/* Qualifications */}
             {detailTherapist.qualifications?.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   Qualifications
                 </h3>
@@ -545,7 +549,7 @@ export default function TherapistPage() {
                   {detailTherapist.qualifications.map((q, i) => (
                     <span
                       key={i}
-                      className="text-xs bg-primary/10 text-primary px-3 py-1 rounded-full"
+                      className="text-xs bg-primary/10 text-primary px-2.5 sm:px-3 py-1 rounded-full"
                     >
                       {q}
                     </span>
@@ -556,7 +560,7 @@ export default function TherapistPage() {
 
             {/* Services */}
             {detailTherapist.therapist_services?.length > 0 && (
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <h3 className="text-sm font-semibold text-foreground mb-2">
                   Available Plans
                 </h3>
@@ -564,7 +568,7 @@ export default function TherapistPage() {
                   {detailTherapist.therapist_services.map((service) => (
                     <div
                       key={service.id}
-                      className="flex items-center justify-between bg-muted-bg/50 rounded-lg px-4 py-3"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-muted-bg/50 rounded-lg px-3 sm:px-4 py-3 gap-3"
                     >
                       <div>
                         <p className="text-sm font-medium text-foreground">
@@ -574,8 +578,8 @@ export default function TherapistPage() {
                           {service.description || "Standard therapy sessions"}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <span className="font-semibold text-foreground">
+                      <div className="flex items-center justify-between sm:justify-end gap-3">
+                        <span className="font-semibold text-foreground text-sm sm:text-base">
                           ${service.price_per_session}/session
                         </span>
                         <button
@@ -624,7 +628,7 @@ export default function TherapistPage() {
                           </span>
                         </div>
                         {review.review_text && (
-                          <p className="text-sm text-foreground">
+                          <p className="text-xs sm:text-sm text-foreground">
                             {review.review_text}
                           </p>
                         )}
@@ -712,13 +716,13 @@ function ChatTab({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-border flex flex-col h-[600px]">
+    <div className="bg-white rounded-xl border border-border flex flex-col h-[500px] sm:h-[600px]">
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-muted text-sm">
+          <div className="flex items-center justify-center h-full text-muted text-xs sm:text-sm">
             <div className="text-center">
-              <MessageCircle className="h-10 w-10 text-muted/30 mx-auto mb-2" />
+              <MessageCircle className="h-8 w-8 sm:h-10 sm:w-10 text-muted/30 mx-auto mb-2" />
               <p>No messages yet. Start a conversation!</p>
             </div>
           </div>
@@ -731,7 +735,7 @@ function ChatTab({
                 className={`flex ${isMine ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm ${
+                  className={`max-w-[85%] sm:max-w-[70%] px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm ${
                     isMine
                       ? "bg-primary text-white rounded-br-md"
                       : "bg-muted-bg text-foreground rounded-bl-md"
@@ -757,7 +761,7 @@ function ChatTab({
       </div>
 
       {/* Message Input */}
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border p-3 sm:p-4">
         <div className="flex gap-2">
           <input
             type="text"
@@ -765,12 +769,12 @@ function ChatTab({
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
             placeholder="Type a message..."
-            className="flex-1 px-4 py-2.5 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm transition-colors"
+            className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-xs sm:text-sm transition-colors"
           />
           <button
             onClick={sendMessage}
             disabled={sending || !newMessage.trim()}
-            className="bg-primary text-white px-4 py-2.5 rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
+            className="bg-primary text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
             {sending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -814,22 +818,22 @@ function SessionsTab({
     <div>
       {/* Jitsi Live Session */}
       {jitsiSessionId && (
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <Video className="h-5 w-5 text-primary" />
+            <h2 className="text-base sm:text-lg font-semibold text-foreground flex items-center gap-2">
+              <Video className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               Live Session
             </h2>
             <button
               onClick={() => setJitsiSessionId(null)}
-              className="text-sm text-muted hover:text-foreground transition-colors"
+              className="text-xs sm:text-sm text-muted hover:text-foreground transition-colors"
             >
               Close
             </button>
           </div>
           <div
             className="bg-black rounded-xl overflow-hidden"
-            style={{ height: "500px" }}
+            style={{ height: "400px" }}
           >
             <iframe
               src={`https://meet.jit.si/mindfold-session-${jitsiSessionId}`}
@@ -842,21 +846,25 @@ function SessionsTab({
       )}
 
       {/* Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
         <button
           onClick={requestSession}
-          className="bg-white rounded-xl border border-border p-5 hover:border-primary/30 hover:shadow-md transition-all text-left"
+          className="bg-white rounded-xl border border-border p-4 sm:p-5 hover:border-primary/30 hover:shadow-md transition-all text-left"
         >
-          <Calendar className="h-5 w-5 text-primary mb-2" />
-          <h3 className="font-semibold text-foreground">Request Session</h3>
+          <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-2" />
+          <h3 className="font-semibold text-foreground text-sm sm:text-base">
+            Request Session
+          </h3>
           <p className="text-xs text-muted mt-1">
             Send a session request to your therapist
           </p>
         </button>
 
-        <div className="bg-white rounded-xl border border-border p-5">
-          <UserCheck className="h-5 w-5 text-primary mb-2" />
-          <h3 className="font-semibold text-foreground">Active</h3>
+        <div className="bg-white rounded-xl border border-border p-4 sm:p-5">
+          <UserCheck className="h-4 w-4 sm:h-5 sm:w-5 text-primary mb-2" />
+          <h3 className="font-semibold text-foreground text-sm sm:text-base">
+            Active
+          </h3>
           <p className="text-xs text-muted mt-1">
             {sessions.length} session(s) recorded
           </p>
@@ -864,21 +872,23 @@ function SessionsTab({
       </div>
 
       {/* Sessions List */}
-      <h2 className="text-lg font-semibold text-foreground mb-4">Sessions</h2>
+      <h2 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">
+        Sessions
+      </h2>
       <div className="space-y-3">
         {sessions.length === 0 ? (
-          <div className="bg-white rounded-xl border border-border p-8 text-center text-muted">
+          <div className="bg-white rounded-xl border border-border p-6 sm:p-8 text-center text-muted text-sm sm:text-base">
             No sessions yet. Request one above!
           </div>
         ) : (
           sessions.map((session) => (
             <div
               key={session.id}
-              className="bg-white rounded-xl border border-border p-5"
+              className="bg-white rounded-xl border border-border p-4 sm:p-5"
             >
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3">
                 <span
-                  className={`text-xs font-medium px-2.5 py-1 rounded-full ${
+                  className={`text-xs font-medium px-2.5 py-1 rounded-full w-fit ${
                     session.status === "completed"
                       ? "bg-success/10 text-success"
                       : session.status === "scheduled"
@@ -898,13 +908,13 @@ function SessionsTab({
 
               {/* Join meeting for scheduled sessions */}
               {session.status === "scheduled" && (
-                <div className="flex gap-2 mb-3">
+                <div className="flex flex-col sm:flex-row gap-2 mb-3">
                   {session.meeting_link && (
                     <a
                       href={session.meeting_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                      className="inline-flex items-center justify-center gap-1.5 text-sm text-primary hover:underline"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
                       External Link
@@ -912,7 +922,7 @@ function SessionsTab({
                   )}
                   <button
                     onClick={() => setJitsiSessionId(session.id)}
-                    className="inline-flex items-center gap-1.5 bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
+                    className="inline-flex items-center justify-center gap-1.5 bg-primary text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
                   >
                     <Video className="h-3.5 w-3.5" />
                     Join Live Session

@@ -64,7 +64,7 @@ export default function MetricCard({
             transform: translateX(0) translateZ(0) scaleY(1);
           }
           50% {
-            transform: translateX(-25%) translateZ(0) scaleY(0.8);
+            transform: translateX(-25%) translateZ(0) scaleY(0.95);
           }
           100% {
             transform: translateX(-50%) translateZ(0) scaleY(1);
@@ -83,11 +83,11 @@ export default function MetricCard({
           }
         }
         .wave {
-          animation: wave 3s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+          animation: wave 4s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
           transform: translate3d(0, 0, 0);
         }
         .wave:nth-of-type(2) {
-          animation-duration: 4s;
+          animation-duration: 5s;
           animation-direction: reverse;
           opacity: 0.6;
         }
