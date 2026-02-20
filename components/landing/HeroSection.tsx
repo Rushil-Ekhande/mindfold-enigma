@@ -68,42 +68,56 @@ export default function HeroSection() {
           </p>
         )}
 
-        {/* CTAs */}
-        <div className="mt-12 flex items-center justify-center gap-4">
-          <Link
-            href="/auth/signup"
-            className="inline-flex items-center gap-2 bg-[#0a1128] text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-black transition-colors"
-          >
-            {content.ctaPrimary || "Get Started Free"}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <a
-            href="#how-it-works"
-            className="inline-flex items-center gap-2 bg-white text-[#0a1128] border border-black/10 px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-gray-50 hover:border-black/20 transition-all shadow-sm"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            {content.ctaSecondary || "Watch Demo"}
-          </a>
-        </div>
-      </div>
-    </section>
-  );
+                {/* CTAs */}
+                <div className="mt-12 flex items-center justify-center gap-4">
+                    <div className="relative">
+                        {/* Click Here Canvas Arrow */}
+                        <div className="absolute -left-[140px] -top-12 hidden md:block pointer-events-none opacity-90">
+                            <div className="relative right-4 top-4">
+                                <svg
+                                    width="160"
+                                    height="180"
+                                    viewBox="0 0 160 180"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="3.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="text-[#0a1128]"
+                                >
+                                    <path
+                                        d="M30,150 C40,110 80,90 90,120 C100,160 30,160 50,90 C60,55 90,40 140,50"
+                                        strokeDasharray="8 8"
+                                    />
+                                    <path d="M144,51 L125,38 L129,58 Z" fill="currentColor" stroke="none" />
+                                </svg>
+                                <span className="absolute -bottom-4 left-0 -rotate-[14deg] text-[28px] tracking-tight text-[#0a1128] font-medium whitespace-nowrap">
+                                    Click here
+                                </span>
+                            </div>
+                        </div>
+
+                        <Link
+                            href="/auth/signup"
+                            className="inline-flex items-center gap-2 bg-[#0a1128] text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-black transition-colors"
+                        >
+                            {content.ctaPrimary || "Get Started Free"}
+                            <ArrowRight className="h-4 w-4" />
+                        </Link>
+                    </div>
+
+                    <a
+                        href="#how-it-works"
+                        className="inline-flex items-center gap-2 bg-white text-[#0a1128] border border-black/10 px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-gray-50 hover:border-black/20 transition-all shadow-sm"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {content.ctaSecondary || "Watch Demo"}
+                    </a>
+                </div>
+            </div>
+        </section>
+    );
 }
