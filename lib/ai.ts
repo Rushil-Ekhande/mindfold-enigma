@@ -17,40 +17,59 @@ function getAI(): GoogleGenAI {
 /**
  * Analyzes a journal entry and returns mental health metrics + AI reflection.
  */
-export async function analyzeJournalEntry(content: string): Promise<{
-    mental_health_score: number;
-    happiness_score: number;
-    accountability_score: number;
-    stress_score: number;
-    burnout_risk_score: number;
-    ai_reflection: string;
+export async function analyzeJournalEntry({
+    entryDate,
+    currentEntry,
+    contextSection = ""
+}: {
+    entryDate: string;
+    currentEntry: string;
+    contextSection?: string;
+}): Promise<{
+    mental_health: number;
+    stress: number;
+    happiness: number;
+    accountability: number;
+    burnout_risk: number;
+    emotional_summary: string;
 }> {
-    const response = await getAI().models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `You are a mental health analysis AI. Analyze the following journal entry and provide:
-1. Mental health metrics (each scored 0-100):
-   - mental_health_score: Overall mental wellness (100 = excellent mental health, 0 = poor mental health)
-   - happiness_score: Level of happiness/positivity (100 = very happy, 0 = very sad)
-   - accountability_score: Self-responsibility and follow-through (100 = high accountability, 0 = low accountability)
-   - stress_score: Stress level (100 = NO STRESS/very calm, 0 = EXTREME STRESS)
-   - burnout_risk_score: Burnout risk (100 = NO BURNOUT RISK/very energized, 0 = SEVERE BURNOUT RISK)
+    const prompt = `You are an expert at analyzing journal entries for mental health metrics. Your job is to read the entry and assign accurate, intuitive scores for each metric, following these rules:
 
-IMPORTANT: For stress_score and burnout_risk_score, higher is not better. If someone says "it was a good day, I liked it", they should get low scores (30-40) for stress_score and burnout_risk_score.
+SCORING RULES (0-100):
+- mental_health: Higher means better overall well-being and resilience. Low if the entry is negative, hopeless, or overwhelmed.
+- stress: Higher means more stress, anxiety, or pressure. If the entry describes a hectic, overwhelming, or anxious day, score stress HIGH (70-100). If calm or relaxed, score LOW (0-30).
+- happiness: Higher means more joy, gratitude, or contentment. If the entry is positive ("today was great"), score HIGH (70-100). If negative, score LOW (0-30).
+- accountability: Higher means the person kept promises to themselves, followed through, or showed self-discipline. Lower if they mention procrastination, avoidance, or regret.
+- burnout_risk: Higher means the person is at risk of exhaustion, feeling overwhelmed, or describes ongoing stress. If the entry is about being overworked, tired, or unable to rest, score HIGH (70-100). If rested and balanced, score LOW (0-30).
 
-2. A brief empathetic AI reflection (2-3 sentences summarizing insights)
+IMPORTANT:
+- Do NOT invert the stress or burnout_risk scores. High = more stress/burnout, low = less.
+- Use the full range (0-100) and be responsive to the entry's emotional tone.
+- If the entry is neutral or unclear, use mid-range scores (40-60).
 
-Return ONLY valid JSON with these exact keys:
+ENTRY DATE: ${entryDate}
+
+JOURNAL ENTRY:
+${currentEntry}
+${contextSection}
+
+Please provide:
+1. emotional_summary: A warm, empathetic paragraph (300-500 characters) validating their feelings, reflecting on their experience, and gently noting any patterns. Do NOT give advice or clinical language.
+2. The following metrics as a JSON object:
 {
-  "mental_health_score": number,
-  "happiness_score": number,
-  "accountability_score": number,
-  "stress_score": number,
-  "burnout_risk_score": number,
-  "ai_reflection": "string"
+    "mental_health": number,
+    "stress": number,
+    "happiness": number,
+    "accountability": number,
+    "burnout_risk": number,
+    "emotional_summary": "string"
 }
 
-Journal entry:
-"${content}"`,
+Return ONLY valid JSON with these exact keys.`;
+
+    const response = await getAI().models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
     });
 
     try {
@@ -62,13 +81,13 @@ Journal entry:
     } catch {
         // Fallback scores if parsing fails
         return {
-            mental_health_score: 50,
-            happiness_score: 50,
-            accountability_score: 50,
-            stress_score: 50,
-            burnout_risk_score: 50,
-            ai_reflection:
-                "Thank you for sharing your thoughts today. Keep journaling to build a clearer picture of your mental wellness journey.",
+            mental_health: 50,
+            stress: 50,
+            happiness: 50,
+            accountability: 50,
+            burnout_risk: 50,
+            emotional_summary:
+                "Thank you for sharing your thoughts today. I notice your willingness to reflect, and that takes real courage. Keep journaling to build a clearer picture of your journey."
         };
     }
 }

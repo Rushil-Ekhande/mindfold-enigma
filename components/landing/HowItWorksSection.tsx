@@ -82,37 +82,39 @@ export default function HowItWorksSection() {
     }, []);
 
     return (
-        <section id="how-it-works" className="py-20">
+        <section id="how-it-works" className="py-24 bg-[#f7f6f4]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-                        {content.heading} <span className="text-primary">{content.headingHighlight}</span> Works
+                <div className="text-center mb-20 flex flex-col items-center">
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-[#0a1128] uppercase">
+                        {content.heading} <span className="text-[#0a1128]/40">{content.headingHighlight}</span> Works
                     </h2>
                     {content.subtitle && (
-                        <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
+                        <p className="mt-6 text-lg sm:text-xl text-[#5b637a] font-medium max-w-2xl mx-auto leading-relaxed">
                             {content.subtitle}
                         </p>
                     )}
                 </div>
 
                 {/* Steps */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
                     {content.steps?.map((step) => {
                         const IconComponent = iconMap[step.icon] || Sparkles;
                         return (
-                            <div key={step.step} className="text-center">
-                                {/* Step Number */}
-                                <div className="relative inline-flex items-center justify-center w-16 h-16 bg-primary text-white rounded-2xl mb-5 shadow-lg shadow-primary/25">
-                                    <IconComponent className="h-7 w-7" />
-                                    <span className="absolute -top-2 -right-2 w-7 h-7 bg-accent text-white text-xs font-bold rounded-full flex items-center justify-center">
+                            <div key={step.step} className="text-center group">
+                                {/* Step Number & Icon */}
+                                <div className="relative inline-flex items-center justify-center w-20 h-20 bg-white shadow-sm border border-black/5 text-[#0a1128] rounded-[2rem] mb-6 group-hover:-translate-y-2 transition-transform duration-300">
+                                    <IconComponent className="h-8 w-8" strokeWidth={2.5} />
+                                    <span className="absolute -top-2 -right-2 w-8 h-8 bg-[#0a1128] text-white text-sm font-bold rounded-full flex items-center justify-center shadow-sm">
                                         {step.step}
                                     </span>
                                 </div>
-                                <h3 className="text-lg font-semibold text-foreground mb-2">
+                                <h3 className="text-xl font-bold text-[#0a1128] mb-3">
                                     {step.title}
                                 </h3>
-                                <p className="text-muted leading-relaxed">{step.description}</p>
+                                <p className="text-[#5b637a] font-medium leading-relaxed">
+                                    {step.description}
+                                </p>
                             </div>
                         );
                     })}

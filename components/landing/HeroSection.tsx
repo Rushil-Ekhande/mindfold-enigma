@@ -20,18 +20,13 @@ interface HeroContent {
 
 export default function HeroSection() {
   const [content, setContent] = useState<HeroContent>({
-    badge: "AI-Powered Mental Wellness",
-    title: "Transform Your Thoughts Into",
-    titleHighlight: "Wellness Insights",
+    badge: "AI-POWERED SELF REFLECTION",
+    title: "LIFE IMITATES LIFE",
+    titleHighlight: "",
     subtitle:
-      "Mindfold uses AI to analyze your daily journal entries, track 5 key mental health metrics, and connect you with professional therapists — all in one place.",
-    ctaPrimary: "Start Journaling Free",
-    ctaSecondary: "See How It Works",
-    stats: [
-      { value: "5", label: "Wellness Metrics" },
-      { value: "AI", label: "Powered Insights" },
-      { value: "24/7", label: "Reflection Access" },
-    ],
+      "Your private AI journal for self-reflection. Discover patterns, gain insights,\nand understand your emotions over time.",
+    ctaPrimary: "Get Started Free",
+    ctaSecondary: "Watch Demo",
   });
 
   useEffect(() => {
@@ -51,63 +46,78 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative pt-32 pb-20 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-background -z-10" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <section className="relative pt-40 pb-32 overflow-hidden bg-[#f7f6f4]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
         {/* Badge */}
         {content.badge && (
-          <div className="inline-flex items-center gap-2 text-black border border-black px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-            <Sparkles className="h-4 w-4" />
+          <div className="inline-flex items-center gap-2 bg-transparent border border-black/80 text-black px-4 py-1.5 rounded-full text-[10px] tracking-widest font-semibold uppercase mb-10">
+            <div className="w-1.5 h-1.5 bg-black rounded-full" />
             {content.badge}
           </div>
         )}
 
         {/* Heading */}
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-black max-w-4xl mx-auto leading-tight">
-          {content.title}{" "}
-          <span className="text-black">{content.titleHighlight}</span>
+        <h1 className="text-7xl sm:text-8xl md:text-[8rem] font-black tracking-tight text-[#0a1128] max-w-6xl mx-auto leading-none uppercase">
+          {content.title}
         </h1>
 
         {/* Subtitle */}
         {content.subtitle && (
-          <p className="mt-6 text-lg sm:text-xl text-muted max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-8 text-lg sm:text-xl text-[#5b637a] font-medium max-w-2xl mx-auto leading-relaxed whitespace-pre-line">
             {content.subtitle}
           </p>
         )}
 
-        {/* CTAs */}
-        <div className="mt-10 flex items-center justify-center gap-4">
-          <Link
-            href="/auth/signup"
-            className="inline-flex items-center gap-2 bg-black text-white px-8 py-3.5 rounded-full text-base font-semibold hover:bg-gray-800 transition-colors shadow-lg"
-          >
-            {content.ctaPrimary || "Get Started"}
-            <ArrowRight className="h-5 w-5" />
-          </Link>
-          <a
-            href="#how-it-works"
-            className="inline-flex items-center gap-2 bg-white text-black px-8 py-3.5 rounded-full text-base font-semibold border border-gray-300 hover:border-black transition-colors"
-          >
-            {content.ctaSecondary || "Watch Demo"}
-          </a>
-        </div>
+                {/* CTAs */}
+                <div className="mt-12 flex items-center justify-center gap-4">
+                    <div className="relative">
+                        {/* Click Here Canvas Arrow */}
+                        <div className="absolute -left-[140px] -top-12 hidden md:block pointer-events-none opacity-90">
+                            <div className="relative right-4 top-4">
+                                <svg
+                                    width="160"
+                                    height="180"
+                                    viewBox="0 0 160 180"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="3.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    className="text-[#0a1128]"
+                                >
+                                    <path
+                                        d="M30,150 C40,110 80,90 90,120 C100,160 30,160 50,90 C60,55 90,40 140,50"
+                                        strokeDasharray="8 8"
+                                    />
+                                    <path d="M144,51 L125,38 L129,58 Z" fill="currentColor" stroke="none" />
+                                </svg>
+                                <span className="absolute -bottom-4 left-0 -rotate-[14deg] text-[28px] tracking-tight text-[#0a1128] font-medium whitespace-nowrap">
+                                    Click here
+                                </span>
+                            </div>
+                        </div>
 
-        {/* Stats */}
-        {content.stats && content.stats.length > 0 && (
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto">
-            {content.stats.map((stat, idx) => (
-              <div key={idx}>
-                <p className="text-3xl font-bold text-foreground">
-                  {stat.value}
-                </p>
-                <p className="text-sm text-muted mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  );
+                        <Link
+                            href="/auth/signup"
+                            className="inline-flex items-center gap-2 bg-[#0a1128] text-white px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-black transition-colors"
+                        >
+                            {content.ctaPrimary || "Get Started Free"}
+                            <ArrowRight className="h-4 w-4" />
+                        </Link>
+                    </div>
+
+                    <a
+                        href="#how-it-works"
+                        className="inline-flex items-center gap-2 bg-white text-[#0a1128] border border-black/10 px-8 py-3.5 rounded-full text-sm font-semibold hover:bg-gray-50 hover:border-black/20 transition-all shadow-sm"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {content.ctaSecondary || "Watch Demo"}
+                    </a>
+                </div>
+            </div>
+        </section>
+    );
 }

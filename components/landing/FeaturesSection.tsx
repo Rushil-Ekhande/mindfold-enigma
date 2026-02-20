@@ -98,38 +98,49 @@ export default function FeaturesSection() {
             .catch((err) => console.error("Failed to load features content:", err));
     }, []);
 
+    // Feature icon colors for a playful, pastel aesthetic
+    const featureColors = [
+        { bg: "bg-blue-100", text: "text-blue-600" },
+        { bg: "bg-purple-100", text: "text-purple-600" },
+        { bg: "bg-emerald-100", text: "text-emerald-600" },
+        { bg: "bg-yellow-100", text: "text-yellow-600" },
+        { bg: "bg-pink-100", text: "text-pink-600" },
+        { bg: "bg-indigo-100", text: "text-indigo-600" },
+    ];
+
     return (
-        <section id="features" className="py-20 bg-muted-bg/50">
+        <section id="features" className="py-24 bg-[#f7f6f4]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+                <div className="text-center mb-20 flex flex-col items-center">
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-[#0a1128] tracking-tight uppercase">
                         {content.heading}{" "}
-                        <span className="text-primary">{content.headingHighlight}</span>
+                        <span className="text-[#0a1128]/40">{content.headingHighlight}</span>
                     </h2>
                     {content.subtitle && (
-                        <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
+                        <p className="mt-6 text-lg sm:text-xl text-[#5b637a] font-medium max-w-2xl mx-auto leading-relaxed">
                             {content.subtitle}
                         </p>
                     )}
                 </div>
 
                 {/* Feature Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                     {content.features?.map((feature, idx) => {
                         const IconComponent = iconMap[feature.icon] || BookOpen;
+                        const color = featureColors[idx % featureColors.length];
                         return (
                             <div
                                 key={idx}
-                                className="bg-white p-8 rounded-2xl border border-border hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group"
+                                className="bg-white p-8 rounded-[2rem] border border-black/5 shadow-sm hover:shadow-md transition-shadow duration-300 group"
                             >
-                                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors">
-                                    <IconComponent className="h-6 w-6 text-primary" />
+                                <div className={`w-14 h-14 ${color.bg} rounded-2xl flex items-center justify-center mb-6`}>
+                                    <IconComponent className={`h-7 w-7 ${color.text}`} strokeWidth={2.5} />
                                 </div>
-                                <h3 className="text-lg font-semibold text-foreground mb-2">
+                                <h3 className="text-xl font-bold text-[#0a1128] mb-3">
                                     {feature.title}
                                 </h3>
-                                <p className="text-muted leading-relaxed">
+                                <p className="text-[#5b637a] font-medium leading-relaxed">
                                     {feature.description}
                                 </p>
                             </div>

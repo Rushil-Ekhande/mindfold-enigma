@@ -54,7 +54,7 @@ export async function GET() {
 
 /**
  * PATCH /api/admin/stats — Update therapist verification status.
- * Body: { therapist_id: string, status: "approved" | "rejected" }
+ * Body: { therapist_id: string, status: "approved" | "rejected", rejection_reason?: string }
  */
 export async function PATCH(request: NextRequest) {
     try {
@@ -68,7 +68,7 @@ export async function PATCH(request: NextRequest) {
 
         const supabase = createAdminClient();
         const body = await request.json();
-        const { therapist_id, status } = body;
+        const { therapist_id, status, rejection_reason } = body;
 
         console.log("Updating therapist:", therapist_id, "to status:", status);
 
@@ -86,9 +86,65 @@ export async function PATCH(request: NextRequest) {
             );
         }
 
+        if (status === "rejected" && !rejection_reason) {
+            return NextResponse.json(
+                { error: "Rejection reason is required when rejecting a therapist" },
+                { status: 400 }
+            );
+        }
+
+        // Get current therapist data
+        const { data: currentTherapist } = await supabase
+            .from("therapist_profiles")
+            .select("rejection_count, government_id_url, degree_certificate_url")
+            .eq("id", therapist_id)
+            .single();
+
+        if (!currentTherapist) {
+            return NextResponse.json(
+                { error: "Therapist not found" },
+                { status: 404 }
+            );
+        }
+
+        let updateData: any = { verification_status: status };
+
+        if (status === "rejected") {
+            const newRejectionCount = (currentTherapist.rejection_count || 0) + 1;
+            const canResubmit = newRejectionCount < 3;
+
+            updateData = {
+                ...updateData,
+                rejection_count: newRejectionCount,
+                rejection_reason,
+                last_rejection_date: new Date().toISOString(),
+                can_resubmit: canResubmit,
+                resubmission_requested: false,
+            };
+
+            // Store rejection history
+            await supabase.from("therapist_rejection_history").insert({
+                therapist_id,
+                rejection_reason,
+                old_government_id_url: currentTherapist.government_id_url,
+                old_degree_certificate_url: currentTherapist.degree_certificate_url,
+            });
+
+            console.log(
+                `Therapist rejected. Count: ${newRejectionCount}, Can resubmit: ${canResubmit}`
+            );
+        } else if (status === "approved") {
+            // Reset rejection data on approval
+            updateData = {
+                ...updateData,
+                rejection_reason: null,
+                resubmission_requested: false,
+            };
+        }
+
         const { data, error } = await supabase
             .from("therapist_profiles")
-            .update({ verification_status: status })
+            .update(updateData)
             .eq("id", therapist_id)
             .select();
 
@@ -105,7 +161,7 @@ export async function PATCH(request: NextRequest) {
         }
 
         console.log("Successfully updated therapist:", data);
-        return NextResponse.json({ success: true, data });
+        return NextResponse.json({ success: true, data: data[0] });
     } catch (error) {
         console.error("Error updating therapist status:", error);
         return NextResponse.json(

@@ -46,61 +46,63 @@ export default function PricingSection() {
     }, []);
 
     return (
-        <section id="pricing" className="py-20">
+        <section id="pricing" className="py-24 bg-[#f7f6f4] relative">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
+                <div className="text-center mb-20 flex flex-col items-center">
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-[#0a1128] uppercase">
                         {content.heading}{" "}
-                        <span className="text-primary">{content.headingHighlight}</span>
+                        <span className="text-[#0a1128]/40">{content.headingHighlight}</span>
                     </h2>
                     {content.subtitle && (
-                        <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
+                        <p className="mt-6 text-lg sm:text-xl text-[#5b637a] font-medium max-w-2xl mx-auto leading-relaxed">
                             {content.subtitle}
                         </p>
                     )}
                 </div>
 
                 {/* Pricing Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-end">
                     {content.plans?.map((plan, idx) => (
                         <div
                             key={idx}
-                            className={`relative p-8 rounded-2xl border-2 transition-all ${plan.highlighted
-                                    ? "border-primary bg-primary/5 shadow-xl shadow-primary/10 scale-105"
-                                    : "border-border bg-white hover:border-primary/30"
+                            className={`relative p-8 lg:p-10 rounded-[2rem] transition-all duration-300 ${plan.highlighted
+                                ? "border-2 border-[#0a1128] bg-white shadow-2xl shadow-black/10 z-10 scale-100 md:scale-105"
+                                : "border border-black/5 bg-white hover:border-black/20 hover:shadow-lg shadow-sm"
                                 }`}
                         >
                             {/* Popular Badge */}
                             {plan.highlighted && (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#0a1128] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-sm">
                                     Most Popular
                                 </div>
                             )}
 
-                            <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
-                            <div className="mt-4 flex items-baseline gap-1">
-                                <span className="text-4xl font-bold text-foreground">
+                            <h3 className="text-xl font-bold text-[#0a1128] mb-4">{plan.name}</h3>
+                            <div className="flex items-baseline gap-1 mb-6">
+                                <span className="text-5xl font-bold tracking-tight text-[#0a1128]">
                                     ${plan.price}
                                 </span>
-                                <span className="text-muted">/month</span>
+                                <span className="text-[#5b637a] font-medium">/mo</span>
                             </div>
 
                             {/* Features List */}
-                            <ul className="mt-8 space-y-3">
+                            <ul className="mb-8 space-y-4 flex-grow">
                                 {plan.features.map((feature, featureIdx) => (
                                     <li key={featureIdx} className="flex items-start gap-3">
-                                        <Check className="h-5 w-5 text-success flex-shrink-0 mt-0.5" />
-                                        <span className="text-sm text-foreground">{feature}</span>
+                                        <div className="w-5 h-5 rounded-full bg-[#0a1128]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            <Check className="h-3 w-3 text-[#0a1128] stroke-[3]" />
+                                        </div>
+                                        <span className="text-sm font-medium text-[#0a1128]">{feature}</span>
                                     </li>
                                 ))}
                             </ul>
 
                             <Link
                                 href="/auth/signup"
-                                className={`mt-8 block w-full text-center py-3 rounded-xl font-semibold transition-colors ${plan.highlighted
-                                        ? "bg-primary text-white hover:bg-primary-dark"
-                                        : "bg-muted-bg text-foreground hover:bg-primary/10"
+                                className={`block w-full text-center py-3.5 rounded-full font-semibold transition-colors ${plan.highlighted
+                                    ? "bg-[#0a1128] text-white hover:bg-black"
+                                    : "bg-gray-100 text-[#0a1128] hover:bg-gray-200"
                                     }`}
                             >
                                 Get Started
