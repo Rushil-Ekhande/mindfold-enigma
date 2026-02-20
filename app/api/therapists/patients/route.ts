@@ -18,20 +18,38 @@ export async function GET() {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { data, error } = await supabase
+    // Fetch therapist-patient relationships
+    const { data: relationships, error: relError } = await supabase
         .from("therapist_patients")
-        .select(
-            `
-      *,
-      profiles:user_id(full_name, email)
-    `
-        )
+        .select("*")
         .eq("therapist_id", user.id)
         .eq("is_active", true);
 
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    if (relError) {
+        return NextResponse.json({ error: relError.message }, { status: 500 });
     }
 
-    return NextResponse.json(data);
+    if (!relationships || relationships.length === 0) {
+        return NextResponse.json([]);
+    }
+
+    // Fetch profile data for each patient (user_id references user_profiles which references profiles)
+    const userIds = relationships.map((r) => r.user_id);
+    const { data: profiles, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", userIds);
+
+    if (profileError) {
+        return NextResponse.json({ error: profileError.message }, { status: 500 });
+    }
+
+    // Merge the data
+    const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
+    const result = relationships.map((rel) => ({
+        ...rel,
+        profiles: profileMap.get(rel.user_id) || null,
+    }));
+
+    return NextResponse.json(result);
 }

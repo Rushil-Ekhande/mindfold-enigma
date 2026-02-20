@@ -1,10 +1,27 @@
 // ============================================================================
-// Landing Page — User Reviews Section
+// Landing Page — User Reviews Section (Dynamic)
 // ============================================================================
 
-import { Star } from "lucide-react";
+"use client";
 
-const reviews = [
+import { Star } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface Review {
+    name: string;
+    role: string;
+    content: string;
+    rating: number;
+}
+
+interface ReviewsContent {
+    heading?: string;
+    headingHighlight?: string;
+    subtitle?: string;
+    reviews?: Review[];
+}
+
+const defaultReviews: Review[] = [
     {
         name: "Sarah M.",
         role: "Daily Journaler",
@@ -50,24 +67,47 @@ const reviews = [
 ];
 
 export default function ReviewsSection() {
+    const [content, setContent] = useState<ReviewsContent>({
+        heading: "Loved by",
+        headingHighlight: "Thousands",
+        subtitle: "See what our users and therapists are saying about Mindfold.",
+        reviews: defaultReviews,
+    });
+
+    useEffect(() => {
+        fetch("/api/landing")
+            .then((res) => res.json())
+            .then((sections) => {
+                if (Array.isArray(sections)) {
+                    const reviews = sections.find((s: { section_name: string }) => s.section_name === "reviews");
+                    if (reviews?.content) {
+                        setContent((prev) => ({ ...prev, ...reviews.content }));
+                    }
+                }
+            })
+            .catch((err) => console.error("Failed to load reviews content:", err));
+    }, []);
+
     return (
         <section id="reviews" className="py-20 bg-muted-bg/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
                 <div className="text-center mb-16">
                     <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-                        Loved by <span className="text-primary">Thousands</span>
+                        {content.heading} <span className="text-primary">{content.headingHighlight}</span>
                     </h2>
-                    <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
-                        See what our users and therapists are saying about Mindfold.
-                    </p>
+                    {content.subtitle && (
+                        <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
+                            {content.subtitle}
+                        </p>
+                    )}
                 </div>
 
                 {/* Review Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {reviews.map((review) => (
+                    {content.reviews?.map((review, idx) => (
                         <div
-                            key={review.name}
+                            key={idx}
                             className="bg-white p-6 rounded-2xl border border-border hover:shadow-md transition-shadow"
                         >
                             {/* Stars */}

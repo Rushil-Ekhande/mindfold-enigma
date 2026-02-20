@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 /**
  * GET /api/admin/stats — Fetch platform-wide statistics.
@@ -57,37 +57,60 @@ export async function GET() {
  * Body: { therapist_id: string, status: "approved" | "rejected" }
  */
 export async function PATCH(request: NextRequest) {
-    const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    try {
+        // Check if service role key is configured
+        if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+            return NextResponse.json(
+                { error: "Admin access not configured" },
+                { status: 500 }
+            );
+        }
 
-    if (!user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        const supabase = createAdminClient();
+        const body = await request.json();
+        const { therapist_id, status } = body;
+
+        console.log("Updating therapist:", therapist_id, "to status:", status);
+
+        if (!therapist_id || !status) {
+            return NextResponse.json(
+                { error: "Missing therapist_id or status" },
+                { status: 400 }
+            );
+        }
+
+        if (!["approved", "rejected"].includes(status)) {
+            return NextResponse.json(
+                { error: "Invalid status. Must be 'approved' or 'rejected'" },
+                { status: 400 }
+            );
+        }
+
+        const { data, error } = await supabase
+            .from("therapist_profiles")
+            .update({ verification_status: status })
+            .eq("id", therapist_id)
+            .select();
+
+        if (error) {
+            console.error("Supabase error:", error);
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        if (!data || data.length === 0) {
+            return NextResponse.json(
+                { error: "Therapist not found" },
+                { status: 404 }
+            );
+        }
+
+        console.log("Successfully updated therapist:", data);
+        return NextResponse.json({ success: true, data });
+    } catch (error) {
+        console.error("Error updating therapist status:", error);
+        return NextResponse.json(
+            { error: "Failed to update therapist status" },
+            { status: 500 }
+        );
     }
-
-    // Verify admin role
-    const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-    if (profile?.role !== "admin") {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const body = await request.json();
-    const { therapist_id, status } = body;
-
-    const { error } = await supabase
-        .from("therapist_profiles")
-        .update({ verification_status: status })
-        .eq("id", therapist_id);
-
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true });
 }

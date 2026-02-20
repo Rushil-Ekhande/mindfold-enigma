@@ -43,6 +43,17 @@ export default function AdminLandingPage() {
     }
 
     async function saveSection(section: LandingSection) {
+        // Validate JSON before saving
+        if (typeof section.content === 'string') {
+            try {
+                JSON.parse(section.content);
+            } catch {
+                setMessage(`Invalid JSON in "${section.section_name}". Please fix syntax errors.`);
+                setTimeout(() => setMessage(""), 3000);
+                return;
+            }
+        }
+
         setSaving(true);
         setMessage("");
         const res = await fetch("/api/admin/landing", {
@@ -50,28 +61,40 @@ export default function AdminLandingPage() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 section_id: section.id,
-                content: section.content,
+                content: typeof section.content === 'string' ? JSON.parse(section.content) : section.content,
                 is_active: section.is_active,
             }),
         });
         if (res.ok) {
             setMessage(`"${section.section_name}" updated successfully!`);
             setTimeout(() => setMessage(""), 3000);
+            // Refresh to get clean data from server
+            await fetchSections();
+        } else {
+            setMessage(`Failed to update "${section.section_name}"`);
+            setTimeout(() => setMessage(""), 3000);
         }
         setSaving(false);
     }
 
     function updateSectionContent(sectionId: string, newContent: string) {
-        try {
-            const parsed = JSON.parse(newContent);
-            setSections((prev) =>
-                prev.map((s) =>
-                    s.id === sectionId ? { ...s, content: parsed } : s
-                )
-            );
-        } catch {
-            // Invalid JSON — don't update
-        }
+        // Always update the textarea value immediately for smooth editing
+        setSections((prev) =>
+            prev.map((s) => {
+                if (s.id === sectionId) {
+                    try {
+                        // Try to parse as JSON
+                        const parsed = JSON.parse(newContent);
+                        return { ...s, content: parsed };
+                    } catch {
+                        // If invalid JSON, store as string temporarily
+                        // This allows editing without losing changes
+                        return { ...s, content: newContent as any };
+                    }
+                }
+                return s;
+            })
+        );
     }
 
     function toggleActive(sectionId: string) {
@@ -174,7 +197,11 @@ export default function AdminLandingPage() {
                                         Content (JSON)
                                     </label>
                                     <textarea
-                                        value={JSON.stringify(section.content, null, 2)}
+                                        value={
+                                            typeof section.content === 'string'
+                                                ? section.content
+                                                : JSON.stringify(section.content, null, 2)
+                                        }
                                         onChange={(e) =>
                                             updateSectionContent(section.id, e.target.value)
                                         }

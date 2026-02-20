@@ -1,11 +1,80 @@
 // ============================================================================
-// Landing Page — Footer
+// Landing Page — Footer (Dynamic)
 // ============================================================================
+
+"use client";
 
 import Link from "next/link";
 import { Brain } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface FooterLink {
+    label: string;
+    href: string;
+}
+
+interface FooterColumn {
+    title: string;
+    links: FooterLink[];
+}
+
+interface FooterContent {
+    brandDescription?: string;
+    columns?: FooterColumn[];
+    copyright?: string;
+}
+
+const defaultColumns: FooterColumn[] = [
+    {
+        title: "Product",
+        links: [
+            { label: "Features", href: "#features" },
+            { label: "Pricing", href: "#pricing" },
+            { label: "How It Works", href: "#how-it-works" },
+            { label: "Reviews", href: "#reviews" },
+        ],
+    },
+    {
+        title: "Company",
+        links: [
+            { label: "About", href: "#" },
+            { label: "Privacy Policy", href: "#" },
+            { label: "Terms of Service", href: "#" },
+            { label: "Contact", href: "#" },
+        ],
+    },
+    {
+        title: "For Therapists",
+        links: [
+            { label: "Join as Therapist", href: "/auth/therapist-register" },
+            { label: "Therapist Guidelines", href: "#" },
+            { label: "Support", href: "#" },
+        ],
+    },
+];
 
 export default function Footer() {
+    const [content, setContent] = useState<FooterContent>({
+        brandDescription:
+            "AI-powered mental health tracking and reflective journaling platform that transforms daily thoughts into measurable wellness insights.",
+        columns: defaultColumns,
+        copyright: `© ${new Date().getFullYear()} Mindfold. All rights reserved.`,
+    });
+
+    useEffect(() => {
+        fetch("/api/landing")
+            .then((res) => res.json())
+            .then((sections) => {
+                if (Array.isArray(sections)) {
+                    const footer = sections.find((s: { section_name: string }) => s.section_name === "footer");
+                    if (footer?.content) {
+                        setContent((prev) => ({ ...prev, ...footer.content }));
+                    }
+                }
+            })
+            .catch((err) => console.error("Failed to load footer content:", err));
+    }, []);
+
     return (
         <footer className="bg-foreground text-white py-16">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,96 +85,45 @@ export default function Footer() {
                             <Brain className="h-7 w-7 text-primary-light" />
                             <span className="text-lg font-bold">Mindfold</span>
                         </Link>
-                        <p className="text-sm text-gray-400 leading-relaxed">
-                            AI-powered mental health tracking and reflective journaling
-                            platform that transforms daily thoughts into measurable wellness
-                            insights.
-                        </p>
+                        {content.brandDescription && (
+                            <p className="text-sm text-gray-400 leading-relaxed">
+                                {content.brandDescription}
+                            </p>
+                        )}
                     </div>
 
-                    {/* Product Links */}
-                    <div>
-                        <h4 className="font-semibold mb-4">Product</h4>
-                        <ul className="space-y-2 text-sm text-gray-400">
-                            <li>
-                                <a href="#features" className="hover:text-white transition-colors">
-                                    Features
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#pricing" className="hover:text-white transition-colors">
-                                    Pricing
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#how-it-works" className="hover:text-white transition-colors">
-                                    How It Works
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#reviews" className="hover:text-white transition-colors">
-                                    Reviews
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Company Links */}
-                    <div>
-                        <h4 className="font-semibold mb-4">Company</h4>
-                        <ul className="space-y-2 text-sm text-gray-400">
-                            <li>
-                                <span className="hover:text-white transition-colors cursor-pointer">
-                                    About
-                                </span>
-                            </li>
-                            <li>
-                                <span className="hover:text-white transition-colors cursor-pointer">
-                                    Privacy Policy
-                                </span>
-                            </li>
-                            <li>
-                                <span className="hover:text-white transition-colors cursor-pointer">
-                                    Terms of Service
-                                </span>
-                            </li>
-                            <li>
-                                <span className="hover:text-white transition-colors cursor-pointer">
-                                    Contact
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* For Therapists */}
-                    <div>
-                        <h4 className="font-semibold mb-4">For Therapists</h4>
-                        <ul className="space-y-2 text-sm text-gray-400">
-                            <li>
-                                <Link
-                                    href="/auth/therapist-register"
-                                    className="hover:text-white transition-colors"
-                                >
-                                    Join as Therapist
-                                </Link>
-                            </li>
-                            <li>
-                                <span className="hover:text-white transition-colors cursor-pointer">
-                                    Therapist Guidelines
-                                </span>
-                            </li>
-                            <li>
-                                <span className="hover:text-white transition-colors cursor-pointer">
-                                    Support
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
+                    {/* Dynamic Columns */}
+                    {content.columns?.map((column, idx) => (
+                        <div key={idx}>
+                            <h4 className="font-semibold mb-4">{column.title}</h4>
+                            <ul className="space-y-2 text-sm text-gray-400">
+                                {column.links.map((link, linkIdx) => (
+                                    <li key={linkIdx}>
+                                        {link.href.startsWith("#") || link.href === "#" ? (
+                                            <a
+                                                href={link.href}
+                                                className="hover:text-white transition-colors"
+                                            >
+                                                {link.label}
+                                            </a>
+                                        ) : (
+                                            <Link
+                                                href={link.href}
+                                                className="hover:text-white transition-colors"
+                                            >
+                                                {link.label}
+                                            </Link>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    ))}
                 </div>
 
                 {/* Bottom Bar */}
                 <div className="mt-12 pt-8 border-t border-gray-700 text-center text-sm text-gray-400">
-                    © {new Date().getFullYear()} Mindfold. All rights reserved.
+                    {content.copyright}
                 </div>
             </div>
         </footer>
