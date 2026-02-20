@@ -28,7 +28,7 @@ export default function JournalPage() {
   // Fetch entries for the current month
   const fetchEntries = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/journal?month=${monthStr}`);
+    const res = await fetch(`/api/journal?month=${monthStr}`, { cache: "no-store" });
     const data = await res.json();
     setEntries(Array.isArray(data) ? data : []);
     setLoading(false);

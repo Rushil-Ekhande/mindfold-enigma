@@ -162,7 +162,14 @@ export default async function OverviewPage() {
     <div className="max-w-7xl">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">How You Are</h1>
+        <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-gray-900">How You Are</h1>
+            {chartEntries[chartEntries.length - 1]?.mood && (
+                <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20">
+                    Feeling {chartEntries[chartEntries.length - 1].mood}
+                </span>
+            )}
+        </div>
         <p className="text-gray-500 mt-1">
           Your mental health snapshot based on your journal entries
         </p>

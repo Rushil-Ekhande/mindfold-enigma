@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
     ShieldCheck,
     ShieldX,
@@ -29,6 +30,7 @@ interface TherapistData {
 }
 
 export default function AdminTherapistsPage() {
+    const router = useRouter();
     const [therapists, setTherapists] = useState<TherapistData[]>([]);
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState<string | null>(null);
@@ -46,7 +48,7 @@ export default function AdminTherapistsPage() {
     async function fetchTherapists() {
         setLoading(true);
         try {
-            const res = await fetch("/api/admin/therapists");
+            const res = await fetch("/api/admin/therapists", { cache: "no-store" });
             if (!res.ok) {
                 console.error("Failed to fetch therapists:", res.status);
                 setTherapists([]);
@@ -99,6 +101,7 @@ export default function AdminTherapistsPage() {
             
             // Refresh the list
             await fetchTherapists();
+            router.refresh(); // Invalidate route cache
             
             // Close dialog if open
             setShowRejectDialog(false);

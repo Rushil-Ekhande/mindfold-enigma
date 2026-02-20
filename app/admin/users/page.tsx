@@ -33,7 +33,7 @@ export default function AdminUsersPage() {
     async function fetchUsers() {
         setLoading(true);
         try {
-            const res = await fetch("/api/admin/users");
+            const res = await fetch("/api/admin/users", { cache: "no-store" });
             if (!res.ok) {
                 const error = await res.json();
                 console.error("API error:", error);

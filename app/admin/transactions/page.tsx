@@ -32,7 +32,7 @@ export default function AdminTransactionsPage() {
     async function fetchTransactions() {
         setLoading(true);
         try {
-            const res = await fetch("/api/admin/transactions");
+            const res = await fetch("/api/admin/transactions", { cache: "no-store" });
             const data = await res.json();
             setTransactions(data);
         } catch (error) {

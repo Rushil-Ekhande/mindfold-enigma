@@ -50,7 +50,7 @@ export default function AdminOverviewPage() {
     async function fetchStats() {
         setLoading(true);
         try {
-            const res = await fetch(`/api/admin/analytics?range=${timeRange}`);
+            const res = await fetch(`/api/admin/analytics?range=${timeRange}`, { cache: "no-store" });
             const data = await res.json();
             setStats(data);
         } catch (error) {

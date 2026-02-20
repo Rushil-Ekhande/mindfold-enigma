@@ -61,7 +61,7 @@ export default function UserDetailPage() {
     async function fetchUserDetail() {
         setLoading(true);
         try {
-            const res = await fetch(`/api/admin/users/${userId}`);
+            const res = await fetch(`/api/admin/users/${userId}`, { cache: "no-store" });
             if (!res.ok) {
                 console.error("Failed to fetch user details");
                 return;

@@ -45,7 +45,7 @@ export default function JournalEntryPage({
     useEffect(() => {
         async function fetchEntry() {
             setLoading(true);
-            const res = await fetch(`/api/journal?date=${entryDate}`);
+            const res = await fetch(`/api/journal?date=${entryDate}`, { cache: "no-store" });
             const data = await res.json();
             const found = Array.isArray(data) ? data.find((e: JournalEntry) => e.entry_date === entryDate) : null;
             setEntry(found || null);
@@ -67,6 +67,7 @@ export default function JournalEntryPage({
         const data = await res.json();
         if (data.id) {
             setEntry(data);
+            router.refresh();
         }
         setSaving(false);
     }

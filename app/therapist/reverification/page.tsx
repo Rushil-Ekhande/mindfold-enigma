@@ -41,7 +41,7 @@ export default function TherapistReverificationPage() {
 
     async function fetchStatus() {
         try {
-            const res = await fetch("/api/therapists/settings");
+            const res = await fetch("/api/therapists/settings", { cache: "no-store" });
             if (!res.ok) {
                 setError("Failed to fetch verification status");
                 setLoading(false);

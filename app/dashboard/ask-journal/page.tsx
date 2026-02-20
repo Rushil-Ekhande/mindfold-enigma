@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
     Send,
     Plus,
@@ -18,6 +19,7 @@ import {
 import type { JournalChatConversation, JournalChatMessage } from "@/lib/types";
 
 export default function AskJournalPage() {
+    const router = useRouter();
     const [conversations, setConversations] = useState<JournalChatConversation[]>([]);
     const [activeConvId, setActiveConvId] = useState<string | null>(null);
     const [messages, setMessages] = useState<JournalChatMessage[]>([]);
@@ -30,7 +32,7 @@ export default function AskJournalPage() {
     // Fetch conversations list
     const fetchConversations = useCallback(async () => {
         setLoadingConvs(true);
-        const res = await fetch("/api/chat");
+        const res = await fetch("/api/chat", { cache: "no-store" });
         const data = await res.json();
         setConversations(Array.isArray(data) ? data : []);
         setLoadingConvs(false);
@@ -42,7 +44,7 @@ export default function AskJournalPage() {
 
     // Fetch messages for active conversation
     const fetchMessages = useCallback(async (convId: string) => {
-        const res = await fetch(`/api/chat/messages?conversation_id=${convId}`);
+        const res = await fetch(`/api/chat/messages?conversation_id=${convId}`, { cache: "no-store" });
         const data = await res.json();
         setMessages(Array.isArray(data) ? data : []);
     }, []);
@@ -121,6 +123,7 @@ export default function AskJournalPage() {
             setMessages([]);
         }
         await fetchConversations();
+        router.refresh();
     }
 
     // New chat

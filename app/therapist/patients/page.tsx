@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
     Users,
     Calendar,
@@ -70,6 +71,7 @@ interface JournalEntryData {
     accountability_score: number | null;
     stress_score: number | null;
     burnout_risk_score: number | null;
+    mood: string | null;
 }
 
 interface PrescriptionData {
@@ -101,9 +103,11 @@ export default function PatientsPage() {
     const [activeTab, setActiveTab] = useState<TabKey>("chat");
     const [therapistId, setTherapistId] = useState<string | null>(null);
 
+    const [patientMoods, setPatientMoods] = useState<Record<string, string>>({});
+
     // Fetch sessions (which contain patient info)
     const fetchSessions = useCallback(async () => {
-        const res = await fetch("/api/sessions");
+        const res = await fetch("/api/sessions", { cache: "no-store" });
         const data = await res.json();
         setSessions(Array.isArray(data) ? data : []);
     }, []);
@@ -112,16 +116,34 @@ export default function PatientsPage() {
         async function loadData() {
             setLoading(true);
             // Get therapist ID
-            const settingsRes = await fetch("/api/therapists/settings");
+            const settingsRes = await fetch("/api/therapists/settings", { cache: "no-store" });
             const settingsData = await settingsRes.json();
             if (settingsData?.id) setTherapistId(settingsData.id);
 
             await fetchSessions();
 
             // Fetch patients
-            const patientsRes = await fetch("/api/therapists/patients");
+            const patientsRes = await fetch("/api/therapists/patients", { cache: "no-store" });
             const patientsData = await patientsRes.json();
-            setPatients(Array.isArray(patientsData) ? patientsData : []);
+            const loadedPatients = Array.isArray(patientsData) ? patientsData : [];
+            setPatients(loadedPatients);
+
+            // Fetch recent mood for each patient
+            const moods: Record<string, string> = {};
+            for (const p of loadedPatients) {
+                try {
+                    const jRes = await fetch(`/api/therapists/journal?user_id=${p.user_id}`, { cache: "no-store" });
+                    if (jRes.ok) {
+                        const jData = await jRes.json();
+                        if (Array.isArray(jData) && jData.length > 0 && jData[0].mood) {
+                            moods[p.user_id] = jData[0].mood;
+                        }
+                    }
+                } catch {
+                    // Ignore, patient might have hidden their journal
+                }
+            }
+            setPatientMoods(moods);
 
             setLoading(false);
         }
@@ -250,10 +272,17 @@ export default function PatientsPage() {
                                         ).charAt(0)}
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-foreground">
-                                            {patient.profiles?.full_name ||
-                                                "Unknown Patient"}
-                                        </h3>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-semibold text-foreground">
+                                                {patient.profiles?.full_name ||
+                                                    "Unknown Patient"}
+                                            </h3>
+                                            {patientMoods[patient.user_id] && (
+                                                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-medium rounded-full border border-primary/20">
+                                                    {patientMoods[patient.user_id]}
+                                                </span>
+                                            )}
+                                        </div>
                                         <p className="text-xs text-muted">
                                             {patient.profiles?.email}
                                         </p>
@@ -302,9 +331,7 @@ function TherapistChatTab({
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const fetchMessages = useCallback(async () => {
-        const res = await fetch(
-            `/api/messages?relationship_id=${relationshipId}`
-        );
+        const res = await fetch(`/api/messages?relationship_id=${relationshipId}`, { cache: "no-store" });
         const data = await res.json();
         setMessages(Array.isArray(data) ? data : []);
         setLoading(false);
@@ -439,6 +466,7 @@ function TherapistSessionsTab({
     relationshipId: string;
     onRefresh: () => void;
 }) {
+    const router = useRouter();
     const [meetingLink, setMeetingLink] = useState("");
     const [scheduledDate, setScheduledDate] = useState("");
     const [jitsiSessionId, setJitsiSessionId] = useState<string | null>(null);
@@ -471,6 +499,7 @@ function TherapistSessionsTab({
         setMeetingLink("");
         setScheduledDate("");
         await onRefresh();
+        router.refresh();
     }
 
     async function postponeSession(sessionId: string) {
@@ -483,6 +512,7 @@ function TherapistSessionsTab({
             }),
         });
         await onRefresh();
+        router.refresh();
     }
 
     async function completeSession(sessionId: string) {
@@ -495,6 +525,7 @@ function TherapistSessionsTab({
             }),
         });
         await onRefresh();
+        router.refresh();
     }
 
     async function submitNotes() {
@@ -515,6 +546,7 @@ function TherapistSessionsTab({
         });
         setSaving(false);
         await onRefresh();
+        router.refresh();
     }
 
     return (
@@ -846,9 +878,7 @@ function TherapistJournalTab({ userId }: { userId: string }) {
 
     useEffect(() => {
         async function fetchEntries() {
-            const res = await fetch(
-                `/api/therapists/journal?user_id=${userId}`
-            );
+            const res = await fetch(`/api/therapists/journal?user_id=${userId}`, { cache: "no-store" });
             const data = await res.json();
             setEntries(Array.isArray(data) ? data : []);
             setLoading(false);
@@ -965,6 +995,7 @@ function TherapistPrescriptionsTab({
     userId: string;
     relationshipId: string;
 }) {
+    const router = useRouter();
     const [prescriptions, setPrescriptions] = useState<PrescriptionData[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -976,7 +1007,7 @@ function TherapistPrescriptionsTab({
     const [saving, setSaving] = useState(false);
 
     const fetchPrescriptions = useCallback(async () => {
-        const res = await fetch(`/api/prescriptions?user_id=${userId}`);
+        const res = await fetch(`/api/prescriptions?user_id=${userId}`, { cache: "no-store" });
         const data = await res.json();
         setPrescriptions(Array.isArray(data) ? data : []);
         setLoading(false);
@@ -1007,6 +1038,7 @@ function TherapistPrescriptionsTab({
         setFormContent("");
         setSaving(false);
         await fetchPrescriptions();
+        router.refresh();
     }
 
     if (loading) {

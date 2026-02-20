@@ -110,6 +110,15 @@ export default function SignupPage() {
                             Sign In
                         </Link>
                     </div>
+                    <div className="mt-2 text-center text-sm text-muted">
+                        Are you a therapist?{" "}
+                        <Link
+                            href="/auth/therapist-register"
+                            className="text-primary font-medium hover:underline"
+                        >
+                            Register Here
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

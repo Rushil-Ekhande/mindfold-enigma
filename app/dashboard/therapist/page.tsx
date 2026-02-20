@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
     Search,
     Star,
@@ -109,6 +110,7 @@ const tabs: { key: TabKey; label: string; icon: React.ReactNode }[] = [
 // ── Main Component ──────────────────────────────────────────────────────────
 
 export default function TherapistPage() {
+    const router = useRouter();
     const [hasTherapist, setHasTherapist] = useState(false);
     const [therapists, setTherapists] = useState<TherapistData[]>([]);
     const [sessions, setSessions] = useState<SessionData[]>([]);
@@ -131,7 +133,7 @@ export default function TherapistPage() {
         setLoading(true);
 
         // Get user profile
-        const userRes = await fetch("/api/user/settings");
+        const userRes = await fetch("/api/user/settings", { cache: "no-store" });
         const userData = await userRes.json();
         if (userData?.id) {
             setUserId(userData.id);
@@ -139,9 +141,7 @@ export default function TherapistPage() {
 
         // Check for active therapist relationship first
         if (userData?.current_therapist_id) {
-            const tpRes = await fetch(
-                `/api/therapists/patients/relationship?therapist_id=${userData.current_therapist_id}`
-            );
+            const tpRes = await fetch(`/api/therapists/patients/relationship?therapist_id=${userData.current_therapist_id}`, { cache: "no-store" });
             if (tpRes.ok) {
                 const tpData = await tpRes.json();
                 if (tpData?.id && tpData?.is_active) {
@@ -152,7 +152,7 @@ export default function TherapistPage() {
                     });
 
                     // Fetch sessions for this active relationship
-                    const res = await fetch("/api/sessions");
+                    const res = await fetch("/api/sessions", { cache: "no-store" });
                     const data = await res.json();
                     if (Array.isArray(data)) {
                         // Only show sessions for the current active relationship
@@ -181,9 +181,7 @@ export default function TherapistPage() {
 
     // Search therapists
     async function searchTherapists() {
-        const res = await fetch(
-            `/api/therapists?search=${encodeURIComponent(search)}`
-        );
+        const res = await fetch(`/api/therapists?search=${encodeURIComponent(search)}`, { cache: "no-store" });
         const data = await res.json();
         setTherapists(Array.isArray(data) ? data : []);
     }
@@ -211,6 +209,7 @@ export default function TherapistPage() {
             setHasTherapist(true);
             setDetailTherapist(null);
             await checkRelationship();
+            router.refresh();
         }
     }
 
@@ -245,8 +244,7 @@ export default function TherapistPage() {
                 setHasTherapist(false);
                 setRelationship(null);
                 setSessions([]);
-                // Force reload to clear all cached state
-                window.location.reload();
+                router.refresh();
             } else {
                 alert("Failed to end relationship: " + (result.error || "Unknown error"));
             }
@@ -636,9 +634,7 @@ function ChatTab({
     const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const fetchMessages = useCallback(async () => {
-        const res = await fetch(
-            `/api/messages?relationship_id=${relationshipId}`
-        );
+        const res = await fetch(`/api/messages?relationship_id=${relationshipId}`, { cache: "no-store" });
         const data = await res.json();
         setMessages(Array.isArray(data) ? data : []);
         setLoading(false);
@@ -957,7 +953,7 @@ function JournalTab() {
     useEffect(() => {
         async function fetchData() {
             // Fetch all journal entries
-            const res = await fetch("/api/journal");
+            const res = await fetch("/api/journal", { cache: "no-store" });
             const data = await res.json();
             setEntries(Array.isArray(data) ? data : []);
             setLoading(false);
@@ -1127,7 +1123,7 @@ function PrescriptionsTab() {
 
     useEffect(() => {
         async function fetchPrescriptions() {
-            const res = await fetch("/api/prescriptions");
+            const res = await fetch("/api/prescriptions", { cache: "no-store" });
             const data = await res.json();
             setPrescriptions(Array.isArray(data) ? data : []);
             setLoading(false);
@@ -1237,9 +1233,7 @@ function ReviewTab({ therapistId }: { therapistId: string }) {
 
     useEffect(() => {
         async function fetchReviews() {
-            const res = await fetch(
-                `/api/reviews?therapist_id=${therapistId}`
-            );
+            const res = await fetch(`/api/reviews?therapist_id=${therapistId}`, { cache: "no-store" });
             const data = await res.json();
             setExistingReviews(Array.isArray(data) ? data : []);
         }

@@ -31,6 +31,7 @@ export async function analyzeJournalEntry({
     happiness: number;
     accountability: number;
     burnout_risk: number;
+    mood: string;
     emotional_summary: string;
 }> {
     const prompt = `You are an expert at analyzing journal entries for mental health metrics. Your job is to read the entry and assign accurate, intuitive scores for each metric, following these rules:
@@ -39,8 +40,9 @@ SCORING RULES (0-100):
 - mental_health: Higher means better overall well-being and resilience. Low if the entry is negative, hopeless, or overwhelmed.
 - stress: Higher means more stress, anxiety, or pressure. If the entry describes a hectic, overwhelming, or anxious day, score stress HIGH (70-100). If calm or relaxed, score LOW (0-30).
 - happiness: Higher means more joy, gratitude, or contentment. If the entry is positive ("today was great"), score HIGH (70-100). If negative, score LOW (0-30).
-- accountability: Higher means the person kept promises to themselves, followed through, or showed self-discipline. Lower if they mention procrastination, avoidance, or regret.
-- burnout_risk: Higher means the person is at risk of exhaustion, feeling overwhelmed, or describes ongoing stress. If the entry is about being overworked, tired, or unable to rest, score HIGH (70-100). If rested and balanced, score LOW (0-30).
+4. accountability: Higher means the person kept promises to themselves, followed through, or showed self-discipline. Lower if they mention procrastination, avoidance, or regret.
+5. burnout_risk: Higher means the person is at risk of exhaustion, feeling overwhelmed, or describes ongoing stress. If the entry is about being overworked, tired, or unable to rest, score HIGH (70-100). If rested and balanced, score LOW (0-30).
+6. mood: Provide a single word (e.g. Happy, Anxious, Calm, Neutral, Sad, Excited) that best captures the emotional state of the entry.
 
 IMPORTANT:
 - Do NOT invert the stress or burnout_risk scores. High = more stress/burnout, low = less.
@@ -62,6 +64,7 @@ Please provide:
     "happiness": number,
     "accountability": number,
     "burnout_risk": number,
+    "mood": "string",
     "emotional_summary": "string"
 }
 
@@ -86,6 +89,7 @@ Return ONLY valid JSON with these exact keys.`;
             happiness: 50,
             accountability: 50,
             burnout_risk: 50,
+            mood: "Neutral",
             emotional_summary:
                 "Thank you for sharing your thoughts today. I notice your willingness to reflect, and that takes real courage. Keep journaling to build a clearer picture of your journey."
         };

@@ -40,6 +40,7 @@ export default function SettingsPage() {
         if (res.ok) {
             setMessage("Name updated successfully!");
             setFullName("");
+            router.refresh(); // Refresh server state
         }
         setSaving(false);
     }
@@ -65,6 +66,7 @@ export default function SettingsPage() {
             setMessage("Password updated successfully!");
             setPassword("");
             setConfirmPassword("");
+            router.refresh();
         } else {
             const data = await res.json();
             setMessage(data.error || "Failed to update password.");
@@ -78,6 +80,7 @@ export default function SettingsPage() {
         await fetch("/api/journal", { method: "DELETE" });
         setMessage("All journal entries deleted.");
         setDeletingEntries(false);
+        router.refresh();
     }
 
     // Delete account

@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
     FileEdit,
     Loader2,
@@ -24,6 +25,7 @@ interface LandingSection {
 }
 
 export default function AdminLandingPage() {
+    const router = useRouter();
     const [sections, setSections] = useState<LandingSection[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -36,7 +38,7 @@ export default function AdminLandingPage() {
 
     async function fetchSections() {
         setLoading(true);
-        const res = await fetch("/api/admin/landing");
+        const res = await fetch("/api/admin/landing", { cache: "no-store" });
         const data = await res.json();
         setSections(Array.isArray(data) ? data : []);
         setLoading(false);
@@ -70,6 +72,7 @@ export default function AdminLandingPage() {
             setTimeout(() => setMessage(""), 3000);
             // Refresh to get clean data from server
             await fetchSections();
+            router.refresh();
         } else {
             setMessage(`Failed to update "${section.section_name}"`);
             setTimeout(() => setMessage(""), 3000);

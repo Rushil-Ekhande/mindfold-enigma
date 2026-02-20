@@ -6,6 +6,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
     User,
     FileText,
@@ -37,6 +38,7 @@ interface TherapistProfile {
 }
 
 export default function TherapistSettingsPage() {
+    const router = useRouter();
     const [displayName, setDisplayName] = useState("");
     const [description, setDescription] = useState("");
     const [qualifications, setQualifications] = useState<string[]>([]);
@@ -54,7 +56,7 @@ export default function TherapistSettingsPage() {
     // Fetch current settings
     useEffect(() => {
         async function fetchSettings() {
-            const res = await fetch("/api/therapists/settings");
+            const res = await fetch("/api/therapists/settings", { cache: "no-store" });
             const data = await res.json();
             if (data) {
                 setDisplayName(data.display_name || "");
@@ -88,7 +90,10 @@ export default function TherapistSettingsPage() {
                 services,
             }),
         });
-        if (res.ok) setMessage("Settings saved successfully!");
+        if (res.ok) {
+            setMessage("Settings saved successfully!");
+            router.refresh();
+        }
         setSaving(false);
     }
 
