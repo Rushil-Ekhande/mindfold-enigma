@@ -48,21 +48,17 @@ export default function TherapistRegisterPage() {
         // 2. Upload government ID
         if (governmentIdInput?.files?.[0]) {
             const file = governmentIdInput.files[0];
+            const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
             const { data, error: uploadError } = await supabase.storage
                 .from("therapist-documents")
-                .upload(`temp/${file.name}-${Date.now()}`, file);
+                .upload(`temp/government_id_${sanitizedName}`, file);
             if (uploadError) {
                 setError(uploadError.message || "Upload failed for government ID.");
                 setLoading(false);
                 return;
             }
             if (data) {
-                governmentIdUrl = data.path;
-                // Generate signed URL for the uploaded file
-                const { data: signedData } = await supabase.storage
-                    .from("therapist-documents")
-                    .createSignedUrl(data.path, 3600); // 1 hour expiry
-                if (signedData?.signedUrl) governmentIdUrl = signedData.signedUrl;
+                governmentIdUrl = data.path; // Store path, not signed URL
             }
         } else {
             setError("Please select a government ID file.");
@@ -73,21 +69,17 @@ export default function TherapistRegisterPage() {
         // 3. Upload degree certificate
         if (degreeCertificateInput?.files?.[0]) {
             const file = degreeCertificateInput.files[0];
+            const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
             const { data, error: uploadError } = await supabase.storage
                 .from("therapist-documents")
-                .upload(`temp/${file.name}-${Date.now()}`, file);
+                .upload(`temp/degree_certificate_${sanitizedName}`, file);
             if (uploadError) {
                 setError(uploadError.message || "Upload failed for degree certificate.");
                 setLoading(false);
                 return;
             }
             if (data) {
-                degreeCertificateUrl = data.path;
-                // Generate signed URL for the uploaded file
-                const { data: signedData } = await supabase.storage
-                    .from("therapist-documents")
-                    .createSignedUrl(data.path, 3600);
-                if (signedData?.signedUrl) degreeCertificateUrl = signedData.signedUrl;
+                degreeCertificateUrl = data.path; // Store path, not signed URL
             }
         } else {
             setError("Please select a degree certificate file.");
@@ -113,8 +105,8 @@ export default function TherapistRegisterPage() {
             id: userId,
             display_name: fullName,
             license_number: licenseNumber,
-            government_id_url: governmentIdUrl, // now a signed URL
-            degree_certificate_url: degreeCertificateUrl, // now a signed URL
+            government_id_url: governmentIdUrl, // Store path, not URL
+            degree_certificate_url: degreeCertificateUrl, // Store path, not URL
             verification_status: "pending",
         });
         if (therapistError) {

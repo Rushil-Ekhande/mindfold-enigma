@@ -35,6 +35,9 @@ export default function AdminTherapistsPage() {
     const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">(
         "pending"
     );
+    const [showRejectDialog, setShowRejectDialog] = useState(false);
+    const [selectedTherapist, setSelectedTherapist] = useState<string | null>(null);
+    const [rejectionReason, setRejectionReason] = useState("");
 
     useEffect(() => {
         fetchTherapists();
@@ -67,14 +70,20 @@ export default function AdminTherapistsPage() {
 
     async function updateVerification(
         therapistId: string,
-        status: "approved" | "rejected"
+        status: "approved" | "rejected",
+        reason?: string
     ) {
         setUpdating(therapistId);
         try {
+            const body: any = { therapist_id: therapistId, status };
+            if (status === "rejected" && reason) {
+                body.rejection_reason = reason;
+            }
+
             const res = await fetch("/api/admin/stats", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ therapist_id: therapistId, status }),
+                body: JSON.stringify(body),
             });
 
             const data = await res.json();
@@ -90,11 +99,31 @@ export default function AdminTherapistsPage() {
             
             // Refresh the list
             await fetchTherapists();
+            
+            // Close dialog if open
+            setShowRejectDialog(false);
+            setSelectedTherapist(null);
+            setRejectionReason("");
         } catch (error) {
             console.error("Error updating therapist:", error);
             alert(`Failed to ${status} therapist. Please try again.`);
         } finally {
             setUpdating(null);
+        }
+    }
+
+    function handleRejectClick(therapistId: string) {
+        setSelectedTherapist(therapistId);
+        setShowRejectDialog(true);
+    }
+
+    function handleRejectSubmit() {
+        if (!rejectionReason.trim()) {
+            alert("Please provide a reason for rejection");
+            return;
+        }
+        if (selectedTherapist) {
+            updateVerification(selectedTherapist, "rejected", rejectionReason);
         }
     }
 
@@ -268,7 +297,7 @@ export default function AdminTherapistsPage() {
                                         Approve
                                     </button>
                                     <button
-                                        onClick={() => updateVerification(therapist.id, "rejected")}
+                                        onClick={() => handleRejectClick(therapist.id)}
                                         disabled={updating === therapist.id}
                                         className="flex items-center gap-1.5 bg-danger text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
                                     >
@@ -283,6 +312,45 @@ export default function AdminTherapistsPage() {
                             )}
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Rejection Dialog */}
+            {showRejectDialog && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6">
+                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                            Reject Therapist Application
+                        </h3>
+                        <p className="text-sm text-muted mb-4">
+                            Please provide a detailed reason for rejection. The therapist will see this message.
+                        </p>
+                        <textarea
+                            value={rejectionReason}
+                            onChange={(e) => setRejectionReason(e.target.value)}
+                            placeholder="e.g., Documents are unclear, credentials need verification, etc."
+                            className="w-full px-4 py-3 border border-border rounded-lg resize-none h-32 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors mb-4"
+                        />
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowRejectDialog(false);
+                                    setSelectedTherapist(null);
+                                    setRejectionReason("");
+                                }}
+                                className="flex-1 px-4 py-2.5 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted-bg/50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleRejectSubmit}
+                                disabled={!rejectionReason.trim()}
+                                className="flex-1 px-4 py-2.5 bg-danger text-white rounded-lg text-sm font-medium hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Confirm Rejection
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
