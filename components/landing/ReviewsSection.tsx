@@ -89,15 +89,16 @@ export default function ReviewsSection() {
     }, []);
 
     return (
-        <section id="reviews" className="py-20 bg-muted-bg/50">
+        <section id="reviews" className="py-24 bg-muted-bg/30">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-                        {content.heading} <span className="text-primary">{content.headingHighlight}</span>
+                <div className="text-center mb-20">
+                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+                        {content.heading}{" "}
+                        <span className="text-muted/30">{content.headingHighlight}</span>
                     </h2>
                     {content.subtitle && (
-                        <p className="mt-4 text-lg text-muted max-w-2xl mx-auto">
+                        <p className="mt-6 text-lg text-muted font-medium max-w-2xl mx-auto">
                             {content.subtitle}
                         </p>
                     )}
@@ -108,30 +109,37 @@ export default function ReviewsSection() {
                     {content.reviews?.map((review, idx) => (
                         <div
                             key={idx}
-                            className="bg-white p-6 rounded-2xl border border-border hover:shadow-md transition-shadow"
+                            className="bg-white p-8 rounded-[2rem] border border-border/50 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between h-full"
                         >
-                            {/* Stars */}
-                            <div className="flex gap-1 mb-4">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                    <Star
-                                        key={i}
-                                        className={`h-4 w-4 ${i < review.rating
-                                                ? "text-accent fill-accent"
+                            <div>
+                                {/* Stars */}
+                                <div className="flex gap-1 mb-6">
+                                    {Array.from({ length: 5 }).map((_, i) => (
+                                        <Star
+                                            key={i}
+                                            className={`h-5 w-5 ${i < review.rating
+                                                ? "text-yellow-400 fill-yellow-400"
                                                 : "text-border"
-                                            }`}
-                                    />
-                                ))}
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Content */}
+                                <p className="text-foreground font-medium leading-relaxed mb-8 text-lg">
+                                    &quot;{review.content}&quot;
+                                </p>
                             </div>
 
-                            {/* Content */}
-                            <p className="text-foreground leading-relaxed mb-4">
-                                &quot;{review.content}&quot;
-                            </p>
-
                             {/* Author */}
-                            <div>
-                                <p className="font-semibold text-foreground">{review.name}</p>
-                                <p className="text-sm text-muted">{review.role}</p>
+                            <div className="flex items-center gap-4 mt-auto">
+                                <div className="w-12 h-12 rounded-full bg-pastel-blue flex items-center justify-center text-primary font-bold text-lg">
+                                    {review.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <p className="font-bold text-foreground">{review.name}</p>
+                                    <p className="text-sm font-medium text-muted">{review.role}</p>
+                                </div>
                             </div>
                         </div>
                     ))}

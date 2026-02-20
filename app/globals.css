@@ -5,24 +5,31 @@
    ============================================================================ */
 
 :root {
-  --background: #F5F3EF;
-  --foreground: #0f172a;
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #a5b4fc;
-  --secondary: #06b6d4;
-  --accent: #f59e0b;
+  --background: #ffffff;
+  --foreground: #111827;
+  --primary: #0ea5e9;
+  --primary-dark: #0284c7;
+  --primary-light: #e0f2fe;
+  --secondary: #0ea5e9;
+  --accent: #0ea5e9;
   --success: #10b981;
   --danger: #ef4444;
   --warning: #f59e0b;
-  --muted: #64748b;
-  --muted-bg: #f1f5f9;
-  --border: #e2e8f0;
+  --muted: #6b7280;
+  --muted-bg: #f9fafb;
+  --border: #f3f4f6;
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  --sidebar-bg: #1e1b4b;
-  --sidebar-text: #e0e7ff;
-  --sidebar-active: #6366f1;
+  --card-foreground: #111827;
+  --sidebar-bg: #f9fafb;
+  --sidebar-text: #374151;
+  --sidebar-active: #0ea5e9;
+
+  /* Pastel Highlights for Features/Mockups */
+  --pastel-pink: #fdf2f8;
+  --pastel-purple: #f3e8ff;
+  --pastel-yellow: #fef08a;
+  --pastel-green: #dcfce7;
+  --pastel-blue: #e0f2fe;
 }
 
 @theme inline {
@@ -41,9 +48,13 @@
   --color-border: var(--border);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --color-sidebar-bg: var(--sidebar-bg);
-  --color-sidebar-text: var(--sidebar-text);
-  --color-sidebar-active: var(--sidebar-active);
+
+  --color-pastel-pink: var(--pastel-pink);
+  --color-pastel-purple: var(--pastel-purple);
+  --color-pastel-yellow: var(--pastel-yellow);
+  --color-pastel-green: var(--pastel-green);
+  --color-pastel-blue: var(--pastel-blue);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

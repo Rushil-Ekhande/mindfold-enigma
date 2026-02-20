@@ -4,6 +4,7 @@
 
 import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
+import HeroScrollSection from "@/components/landing/HeroScrollSection";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import ReviewsSection from "@/components/landing/ReviewsSection";
@@ -15,6 +16,7 @@ export default function Home() {
     <>
       <Navbar />
       <HeroSection />
+      <HeroScrollSection />
       <FeaturesSection />
       <HowItWorksSection />
       <ReviewsSection />
@@ -23,3 +25,4 @@ export default function Home() {
     </>
   );
 }
+
