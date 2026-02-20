@@ -89,16 +89,16 @@ export default function ReviewsSection() {
     }, []);
 
     return (
-        <section id="reviews" className="py-24 bg-muted-bg/30">
+        <section id="reviews" className="py-24 bg-[#f7f6f4]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center mb-20">
-                    <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">
+                <div className="text-center mb-20 flex flex-col items-center">
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-[#0a1128] uppercase">
                         {content.heading}{" "}
-                        <span className="text-muted/30">{content.headingHighlight}</span>
+                        <span className="text-[#0a1128]/40">{content.headingHighlight}</span>
                     </h2>
                     {content.subtitle && (
-                        <p className="mt-6 text-lg text-muted font-medium max-w-2xl mx-auto">
+                        <p className="mt-6 text-lg sm:text-xl text-[#5b637a] font-medium max-w-2xl mx-auto leading-relaxed">
                             {content.subtitle}
                         </p>
                     )}
@@ -109,7 +109,7 @@ export default function ReviewsSection() {
                     {content.reviews?.map((review, idx) => (
                         <div
                             key={idx}
-                            className="bg-white p-8 rounded-[2rem] border border-border/50 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between h-full"
+                            className="bg-white p-8 rounded-[2rem] border border-black/5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between h-full"
                         >
                             <div>
                                 {/* Stars */}
@@ -119,26 +119,26 @@ export default function ReviewsSection() {
                                             key={i}
                                             className={`h-5 w-5 ${i < review.rating
                                                 ? "text-yellow-400 fill-yellow-400"
-                                                : "text-border"
+                                                : "text-gray-200"
                                                 }`}
                                         />
                                     ))}
                                 </div>
 
                                 {/* Content */}
-                                <p className="text-foreground font-medium leading-relaxed mb-8 text-lg">
+                                <p className="text-[#0a1128] font-medium leading-relaxed mb-8 text-lg">
                                     &quot;{review.content}&quot;
                                 </p>
                             </div>
 
                             {/* Author */}
                             <div className="flex items-center gap-4 mt-auto">
-                                <div className="w-12 h-12 rounded-full bg-pastel-blue flex items-center justify-center text-primary font-bold text-lg">
+                                <div className="w-12 h-12 rounded-full bg-[#0a1128] flex items-center justify-center text-white font-bold text-lg shadow-sm">
                                     {review.name.charAt(0)}
                                 </div>
                                 <div>
-                                    <p className="font-bold text-foreground">{review.name}</p>
-                                    <p className="text-sm font-medium text-muted">{review.role}</p>
+                                    <p className="font-bold text-[#0a1128]">{review.name}</p>
+                                    <p className="text-sm font-medium text-[#5b637a]">{review.role}</p>
                                 </div>
                             </div>
                         </div>

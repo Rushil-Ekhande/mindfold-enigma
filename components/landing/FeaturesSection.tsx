@@ -109,16 +109,16 @@ export default function FeaturesSection() {
     ];
 
     return (
-        <section id="features" className="py-24 bg-[#fdf2f8] rounded-[3rem] mx-2 sm:mx-4 lg:mx-8 mb-8 relative z-10 shadow-sm border border-pink-50">
+        <section id="features" className="py-24 bg-[#f7f6f4]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* Section Header */}
-                <div className="text-center mb-20">
-                    <h2 className="text-4xl sm:text-5xl font-bold text-foreground tracking-tight">
+                <div className="text-center mb-20 flex flex-col items-center">
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-black text-[#0a1128] tracking-tight uppercase">
                         {content.heading}{" "}
-                        <span className="text-muted/30">{content.headingHighlight}</span>
+                        <span className="text-[#0a1128]/40">{content.headingHighlight}</span>
                     </h2>
                     {content.subtitle && (
-                        <p className="mt-6 text-lg text-muted font-medium max-w-2xl mx-auto">
+                        <p className="mt-6 text-lg sm:text-xl text-[#5b637a] font-medium max-w-2xl mx-auto leading-relaxed">
                             {content.subtitle}
                         </p>
                     )}
@@ -132,15 +132,15 @@ export default function FeaturesSection() {
                         return (
                             <div
                                 key={idx}
-                                className="bg-white p-8 rounded-[2rem] border border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300 group"
+                                className="bg-white p-8 rounded-[2rem] border border-black/5 shadow-sm hover:shadow-md transition-shadow duration-300 group"
                             >
                                 <div className={`w-14 h-14 ${color.bg} rounded-2xl flex items-center justify-center mb-6`}>
                                     <IconComponent className={`h-7 w-7 ${color.text}`} strokeWidth={2.5} />
                                 </div>
-                                <h3 className="text-xl font-bold text-foreground mb-3">
+                                <h3 className="text-xl font-bold text-[#0a1128] mb-3">
                                     {feature.title}
                                 </h3>
-                                <p className="text-muted font-medium leading-relaxed">
+                                <p className="text-[#5b637a] font-medium leading-relaxed">
                                     {feature.description}
                                 </p>
                             </div>

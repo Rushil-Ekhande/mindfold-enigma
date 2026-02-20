@@ -76,22 +76,22 @@ export default function Footer() {
     }, []);
 
     return (
-        <footer className="bg-white text-foreground py-20 border-t border-border/50">
+        <footer className="bg-[#f7f6f4] text-[#0a1128] py-20 border-t border-black/5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-8">
                     {/* Brand */}
                     <div className="md:col-span-1">
                         <Link href="/" className="flex items-center gap-3 mb-6">
-                            <div className="bg-primary text-white p-2.5 rounded-xl flex items-center justify-center">
+                            <div className="bg-[#0a1128] text-white p-2.5 rounded-xl flex items-center justify-center">
                                 <Brain className="h-6 w-6" />
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-xl font-bold leading-tight">Mindfold</span>
-                                <span className="text-xs text-muted font-medium leading-tight">By Teamtailor</span>
+                                <span className="text-xs text-[#5b637a] font-medium leading-tight">By Teamtailor</span>
                             </div>
                         </Link>
                         {content.brandDescription && (
-                            <p className="text-sm font-medium text-muted leading-relaxed max-w-xs">
+                            <p className="text-sm font-medium text-[#5b637a] leading-relaxed max-w-xs">
                                 {content.brandDescription}
                             </p>
                         )}
@@ -100,21 +100,21 @@ export default function Footer() {
                     {/* Dynamic Columns */}
                     {content.columns?.map((column, idx) => (
                         <div key={idx}>
-                            <h4 className="font-bold mb-6">{column.title}</h4>
-                            <ul className="space-y-4 text-sm font-medium text-muted">
+                            <h4 className="font-bold mb-6 text-[#0a1128]">{column.title}</h4>
+                            <ul className="space-y-4 text-sm font-medium text-[#5b637a]">
                                 {column.links.map((link, linkIdx) => (
                                     <li key={linkIdx}>
                                         {link.href.startsWith("#") || link.href === "#" ? (
                                             <a
                                                 href={link.href}
-                                                className="hover:text-primary transition-colors block"
+                                                className="hover:text-black transition-colors block"
                                             >
                                                 {link.label}
                                             </a>
                                         ) : (
                                             <Link
                                                 href={link.href}
-                                                className="hover:text-primary transition-colors block"
+                                                className="hover:text-black transition-colors block"
                                             >
                                                 {link.label}
                                             </Link>
@@ -127,7 +127,7 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="mt-20 pt-8 border-t border-border/50 text-center font-medium text-sm text-muted">
+                <div className="mt-20 pt-8 border-t border-black/5 text-center font-medium text-sm text-[#5b637a]">
                     {content.copyright}
                 </div>
             </div>
