@@ -172,25 +172,12 @@ export default async function OverviewPage() {
   return (
     <div className="max-w-7xl">
       {/* Page Header */}
-<<<<<<< HEAD
       <div className="mb-8">
         <div className="flex items-center gap-3">
           <h1 className="text-3xl font-bold text-gray-900">How You Are</h1>
           <span className="px-3 py-1 bg-primary/10 text-primary text-xl font-medium rounded-full border border-primary/20">
             {moodEmoji}
           </span>
-=======
-      <div className="mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-            How You Are
-          </h1>
-          {chartEntries[chartEntries.length - 1]?.mood && (
-            <span className="px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full border border-primary/20 w-fit">
-              Feeling {chartEntries[chartEntries.length - 1].mood}
-            </span>
-          )}
->>>>>>> 57e3851f669f4aed50452fdef9a3746559e43b91
         </div>
         <p className="text-gray-500 mt-1 text-sm sm:text-base">
           Your mental health snapshot based on your journal entries
