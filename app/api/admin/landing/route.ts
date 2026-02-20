@@ -25,7 +25,7 @@ export async function GET() {
 
 /**
  * PATCH /api/admin/landing — Update a landing page section.
- * Body: { section_name: string, content: object }
+ * Body: { section_id: string, content: object, is_active: boolean }
  */
 export async function PATCH(request: NextRequest) {
     const supabase = await createClient();
@@ -49,12 +49,12 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { section_name, content } = body;
+    const { section_id, content, is_active } = body;
 
     const { error } = await supabase
         .from("landing_page_sections")
-        .update({ content, updated_by: user.id })
-        .eq("section_name", section_name);
+        .update({ content, is_active, updated_by: user.id })
+        .eq("id", section_id);
 
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });

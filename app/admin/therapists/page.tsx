@@ -42,10 +42,27 @@ export default function AdminTherapistsPage() {
 
     async function fetchTherapists() {
         setLoading(true);
-        const res = await fetch("/api/admin/therapists");
-        const data = await res.json();
-        setTherapists(Array.isArray(data) ? data : []);
-        setLoading(false);
+        try {
+            const res = await fetch("/api/admin/therapists");
+            if (!res.ok) {
+                console.error("Failed to fetch therapists:", res.status);
+                setTherapists([]);
+                return;
+            }
+            const text = await res.text();
+            if (!text) {
+                console.error("Empty response from API");
+                setTherapists([]);
+                return;
+            }
+            const data = JSON.parse(text);
+            setTherapists(Array.isArray(data) ? data : []);
+        } catch (error) {
+            console.error("Error fetching therapists:", error);
+            setTherapists([]);
+        } finally {
+            setLoading(false);
+        }
     }
 
     async function updateVerification(
