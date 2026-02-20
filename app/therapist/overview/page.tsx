@@ -70,7 +70,7 @@ export default async function TherapistOverviewPage() {
     ];
 
     return (
-        <div className="max-w-6xl">
+        <div className="w-full">
             {/* Header */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-foreground">

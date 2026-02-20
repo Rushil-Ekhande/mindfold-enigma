@@ -138,7 +138,7 @@ export default function TherapistPage() {
     // If user already has a therapist, show management view
     if (hasTherapist) {
         return (
-            <div className="max-w-4xl">
+            <div className="w-full">
                 <h1 className="text-2xl font-bold text-foreground mb-6">
                     My Therapist
                 </h1>
@@ -200,12 +200,12 @@ export default function TherapistPage() {
                                 <div className="flex items-center justify-between mb-3">
                                     <span
                                         className={`text-xs font-medium px-2.5 py-1 rounded-full ${session.status === "completed"
-                                                ? "bg-success/10 text-success"
-                                                : session.status === "scheduled"
-                                                    ? "bg-primary/10 text-primary"
-                                                    : session.status === "requested"
-                                                        ? "bg-accent/10 text-accent"
-                                                        : "bg-muted-bg text-muted"
+                                            ? "bg-success/10 text-success"
+                                            : session.status === "scheduled"
+                                                ? "bg-primary/10 text-primary"
+                                                : session.status === "requested"
+                                                    ? "bg-accent/10 text-accent"
+                                                    : "bg-muted-bg text-muted"
                                             }`}
                                     >
                                         {session.status.charAt(0).toUpperCase() +
@@ -277,7 +277,7 @@ export default function TherapistPage() {
 
     // Search view — user doesn't have a therapist yet
     return (
-        <div className="max-w-4xl">
+        <div className="w-full">
             <h1 className="text-2xl font-bold text-foreground mb-6">
                 Find a Therapist
             </h1>

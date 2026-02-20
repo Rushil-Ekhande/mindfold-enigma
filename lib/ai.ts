@@ -35,7 +35,7 @@ export async function analyzeJournalEntry(content: string): Promise<{
    - stress_score: Stress level (100 = NO STRESS/very calm, 0 = EXTREME STRESS)
    - burnout_risk_score: Burnout risk (100 = NO BURNOUT RISK/very energized, 0 = SEVERE BURNOUT RISK)
 
-IMPORTANT: For stress_score and burnout_risk_score, higher is better. If someone says "it was a good day, I liked it", they should get HIGH scores (80-95) for stress_score and burnout_risk_score.
+IMPORTANT: For stress_score and burnout_risk_score, higher is not better. If someone says "it was a good day, I liked it", they should get low scores (30-40) for stress_score and burnout_risk_score.
 
 2. A brief empathetic AI reflection (2-3 sentences summarizing insights)
 
@@ -91,8 +91,8 @@ export async function askJournal(
     const entryCount = entries.length;
     const contextNote =
         mode === "quick_reflect"
-            ? `You are analyzing the user's recent journal entries (${entryCount} ${entryCount === 1 ? "entry" : "entries"}). Give a focused, concise answer based on what's available.`
-            : `You are performing a deep analysis of the user's journal history (${entryCount} ${entryCount === 1 ? "entry" : "entries"}). Give a thorough, detailed answer with patterns and insights based on what's available.`;
+            ? `You are analyzing the user's recent journal entries (${entryCount} ${entryCount === 1 ? "entry" : "entries"}). Give a focused, concise answer based on what's available. Keep your response between 500-800 characters.`
+            : `You are performing a deep analysis of the user's journal history (${entryCount} ${entryCount === 1 ? "entry" : "entries"}). Give a thorough, detailed answer with patterns and insights based on what's available. Keep your response between 1000-1500 characters.`;
 
     const response = await getAI().models.generateContent({
         model: "gemini-2.5-flash",

@@ -79,7 +79,7 @@ export default function JournalEntryPage({
     });
 
     return (
-        <div className="max-w-4xl">
+        <div className="w-full">
             {/* Back Button */}
             <button
                 onClick={() => router.push("/dashboard/journal")}

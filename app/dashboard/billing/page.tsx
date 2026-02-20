@@ -34,7 +34,7 @@ export default async function BillingPage() {
     const currentPlan = userProfile?.subscription_plan || "basic";
 
     return (
-        <div className="max-w-5xl">
+        <div className="w-full">
             <h1 className="text-2xl font-bold text-foreground mb-6">Billing</h1>
 
             {/* Current Plan */}
@@ -62,8 +62,8 @@ export default async function BillingPage() {
                         <div
                             key={plan.name}
                             className={`relative p-6 rounded-xl border-2 transition-all ${plan.highlighted
-                                    ? "border-primary bg-primary/5 shadow-lg"
-                                    : "border-border bg-white"
+                                ? "border-primary bg-primary/5 shadow-lg"
+                                : "border-border bg-white"
                                 } ${isCurrentPlan ? "ring-2 ring-primary" : ""}`}
                         >
                             {isCurrentPlan && (
@@ -89,8 +89,8 @@ export default async function BillingPage() {
                             <button
                                 disabled={isCurrentPlan}
                                 className={`mt-5 w-full py-2.5 rounded-lg text-sm font-semibold transition-colors ${isCurrentPlan
-                                        ? "bg-muted-bg text-muted cursor-default"
-                                        : "bg-primary text-white hover:bg-primary-dark"
+                                    ? "bg-muted-bg text-muted cursor-default"
+                                    : "bg-primary text-white hover:bg-primary-dark"
                                     }`}
                             >
                                 {isCurrentPlan ? "Current Plan" : "Upgrade"}
@@ -134,10 +134,10 @@ export default async function BillingPage() {
                                     <td className="px-5 py-3">
                                         <span
                                             className={`text-xs font-medium px-2 py-1 rounded-full ${t.status === "completed"
-                                                    ? "bg-success/10 text-success"
-                                                    : t.status === "pending"
-                                                        ? "bg-accent/10 text-accent"
-                                                        : "bg-danger/10 text-danger"
+                                                ? "bg-success/10 text-success"
+                                                : t.status === "pending"
+                                                    ? "bg-accent/10 text-accent"
+                                                    : "bg-danger/10 text-danger"
                                                 }`}
                                         >
                                             {t.status}

@@ -1,30 +1,134 @@
-// ============================================================================
-// Therapist Registration Page
-// ============================================================================
-
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { Brain, Loader2, Upload } from "lucide-react";
-import { therapistRegisterAction } from "@/app/auth/actions";
+// import { therapistRegisterAction } from "@/app/auth/actions";
+import { createClient } from "@/lib/supabase/client";
 
 export default function TherapistRegisterPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [governmentIdName, setGovernmentIdName] = useState<string>("");
+    const [degreeCertificateName, setDegreeCertificateName] = useState<string>("");
+    const governmentIdInputRef = useRef<HTMLInputElement>(null);
+    const degreeCertificateInputRef = useRef<HTMLInputElement>(null);
 
-    async function handleSubmit(formData: FormData) {
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
         setLoading(true);
         setError("");
-        const result = await therapistRegisterAction(formData);
-        if (result?.error) {
-            setError(result.error);
+        const form = e.currentTarget;
+        const formData = new FormData(form);
+        const fullName = formData.get("fullName") as string;
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
+        const licenseNumber = formData.get("licenseNumber") as string;
+        const governmentIdInput = governmentIdInputRef.current;
+        const degreeCertificateInput = degreeCertificateInputRef.current;
+        let governmentIdUrl = "";
+        let degreeCertificateUrl = "";
+        const supabase = createClient();
+
+        // 1. Sign up user
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { full_name: fullName },
+            },
+        });
+        if (authError || !authData.user) {
+            setError(authError?.message || "Registration failed.");
             setLoading(false);
+            return;
         }
+        const userId = authData.user.id;
+
+        // 2. Upload government ID
+        if (governmentIdInput?.files?.[0]) {
+            const file = governmentIdInput.files[0];
+            const { data, error: uploadError } = await supabase.storage
+                .from("therapist-documents")
+                .upload(`temp/${file.name}-${Date.now()}`, file);
+            if (uploadError) {
+                setError(uploadError.message || "Upload failed for government ID.");
+                setLoading(false);
+                return;
+            }
+            if (data) {
+                governmentIdUrl = data.path;
+                // Generate signed URL for the uploaded file
+                const { data: signedData } = await supabase.storage
+                    .from("therapist-documents")
+                    .createSignedUrl(data.path, 3600); // 1 hour expiry
+                if (signedData?.signedUrl) governmentIdUrl = signedData.signedUrl;
+            }
+        } else {
+            setError("Please select a government ID file.");
+            setLoading(false);
+            return;
+        }
+
+        // 3. Upload degree certificate
+        if (degreeCertificateInput?.files?.[0]) {
+            const file = degreeCertificateInput.files[0];
+            const { data, error: uploadError } = await supabase.storage
+                .from("therapist-documents")
+                .upload(`temp/${file.name}-${Date.now()}`, file);
+            if (uploadError) {
+                setError(uploadError.message || "Upload failed for degree certificate.");
+                setLoading(false);
+                return;
+            }
+            if (data) {
+                degreeCertificateUrl = data.path;
+                // Generate signed URL for the uploaded file
+                const { data: signedData } = await supabase.storage
+                    .from("therapist-documents")
+                    .createSignedUrl(data.path, 3600);
+                if (signedData?.signedUrl) degreeCertificateUrl = signedData.signedUrl;
+            }
+        } else {
+            setError("Please select a degree certificate file.");
+            setLoading(false);
+            return;
+        }
+
+        // 4. Insert profile row
+        const { error: profileError } = await supabase.from("profiles").insert({
+            id: userId,
+            full_name: fullName,
+            email,
+            role: "therapist",
+        });
+        if (profileError) {
+            setError("Failed to create profile.");
+            setLoading(false);
+            return;
+        }
+
+        // 5. Insert therapist_profile row
+        const { error: therapistError } = await supabase.from("therapist_profiles").insert({
+            id: userId,
+            display_name: fullName,
+            license_number: licenseNumber,
+            government_id_url: governmentIdUrl, // now a signed URL
+            degree_certificate_url: degreeCertificateUrl, // now a signed URL
+            verification_status: "pending",
+        });
+        if (therapistError) {
+            setError("Failed to create therapist profile.");
+            setLoading(false);
+            return;
+        }
+
+        setLoading(false);
+        window.location.href = "/auth/login?therapist_registered=true";
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-cyan-50 px-4 py-12">
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 via-white to-cyan-50 px-4 py-12">
             <div className="w-full max-w-lg">
                 {/* Logo */}
                 <Link href="/" className="flex items-center justify-center gap-2 mb-8">
@@ -49,7 +153,7 @@ export default function TherapistRegisterPage() {
                     )}
 
                     {/* Registration Form */}
-                    <form action={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-foreground mb-1">
                                 Full Name
@@ -111,14 +215,26 @@ export default function TherapistRegisterPage() {
                             <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/30 transition-colors">
                                 <Upload className="h-5 w-5 text-muted" />
                                 <span className="text-sm text-muted">
-                                    Upload government ID (PDF, JPG, PNG)
+                                    {governmentIdName ? (
+                                        <span className="text-foreground">{governmentIdName}</span>
+                                    ) : (
+                                        "Upload government ID (PDF, JPG, PNG)"
+                                    )}
                                 </span>
                                 <input
                                     type="file"
                                     name="governmentId"
                                     accept=".pdf,.jpg,.jpeg,.png"
                                     required
-                                    className="hidden"
+                                    className="sr-only"
+                                    ref={governmentIdInputRef}
+                                    onChange={e => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setGovernmentIdName(e.target.files[0].name);
+                                        } else {
+                                            setGovernmentIdName("");
+                                        }
+                                    }}
                                 />
                             </label>
                         </div>
@@ -130,14 +246,26 @@ export default function TherapistRegisterPage() {
                             <label className="flex items-center gap-3 w-full px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/30 transition-colors">
                                 <Upload className="h-5 w-5 text-muted" />
                                 <span className="text-sm text-muted">
-                                    Upload degree certificate (PDF, JPG, PNG)
+                                    {degreeCertificateName ? (
+                                        <span className="text-foreground">{degreeCertificateName}</span>
+                                    ) : (
+                                        "Upload degree certificate (PDF, JPG, PNG)"
+                                    )}
                                 </span>
                                 <input
                                     type="file"
                                     name="degreeCertificate"
                                     accept=".pdf,.jpg,.jpeg,.png"
                                     required
-                                    className="hidden"
+                                    className="sr-only"
+                                    ref={degreeCertificateInputRef}
+                                    onChange={e => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setDegreeCertificateName(e.target.files[0].name);
+                                        } else {
+                                            setDegreeCertificateName("");
+                                        }
+                                    }}
                                 />
                             </label>
                         </div>

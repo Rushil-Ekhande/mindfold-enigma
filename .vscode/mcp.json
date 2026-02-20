@@ -16,7 +16,7 @@
                 "CONTEXT7_API_KEY": "ctx7sk-d05ddcc7-3bf7-43af-8cb0-94090e80c699"
             }
         },
-        // ReflectRiver.com Supabase
+        // mindfold-enigma.com Supabase
         "supabase": {
             "url": "https://mcp.supabase.com/mcp?project_ref=wodcwtuackisydbnmlpb",
             "headers": {

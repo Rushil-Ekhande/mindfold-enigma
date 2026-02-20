@@ -166,7 +166,7 @@ export default function PatientsPage() {
         );
 
         return (
-            <div className="max-w-4xl">
+            <div className="w-full">
                 <button
                     onClick={() => setSelectedPatient(null)}
                     className="flex items-center gap-1 text-sm text-muted hover:text-foreground mb-6 transition-colors"
@@ -194,12 +194,12 @@ export default function PatientsPage() {
                                 <div className="flex items-center justify-between mb-4">
                                     <span
                                         className={`text-xs font-medium px-2.5 py-1 rounded-full ${session.status === "completed"
-                                                ? "bg-success/10 text-success"
-                                                : session.status === "scheduled"
-                                                    ? "bg-primary/10 text-primary"
-                                                    : session.status === "requested"
-                                                        ? "bg-accent/10 text-accent"
-                                                        : "bg-muted-bg text-muted"
+                                            ? "bg-success/10 text-success"
+                                            : session.status === "scheduled"
+                                                ? "bg-primary/10 text-primary"
+                                                : session.status === "requested"
+                                                    ? "bg-accent/10 text-accent"
+                                                    : "bg-muted-bg text-muted"
                                             }`}
                                     >
                                         {session.status}
@@ -414,7 +414,7 @@ export default function PatientsPage() {
 
     // Patient list view
     return (
-        <div className="max-w-4xl">
+        <div className="w-full">
             <h1 className="text-2xl font-bold text-foreground mb-6">Patients</h1>
 
             {patients.length === 0 ? (

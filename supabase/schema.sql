@@ -626,11 +626,76 @@ CREATE TRIGGER update_landing_page_sections_updated_at BEFORE UPDATE ON landing_
 -- STORAGE BUCKETS (for file uploads)
 -- ============================================================================
 
--- Note: These need to be created via Supabase Dashboard or API
--- Bucket names:
--- 1. therapist-documents (for ID, license, certificates)
--- 2. therapist-photos (for profile photos)
--- 3. user-avatars (optional, for user profile pictures)
+-- Create storage buckets
+INSERT INTO storage.buckets (id, name, public)
+VALUES 
+    ('therapist-documents', 'therapist-documents', false),
+    ('therapist-photos', 'therapist-photos', true),
+    ('user-avatars', 'user-avatars', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage policies for therapist-documents bucket (private)
+CREATE POLICY "Therapists can upload their own documents"
+    ON storage.objects FOR INSERT
+    WITH CHECK (
+        bucket_id = 'therapist-documents' AND
+        auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+CREATE POLICY "Therapists can view their own documents"
+    ON storage.objects FOR SELECT
+    USING (
+        bucket_id = 'therapist-documents' AND
+        auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+CREATE POLICY "Admins can view all therapist documents"
+    ON storage.objects FOR SELECT
+    USING (
+        bucket_id = 'therapist-documents' AND
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE id = auth.uid() AND role = 'admin'
+        )
+    );
+
+-- Storage policies for therapist-photos bucket (public)
+CREATE POLICY "Anyone can view therapist photos"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'therapist-photos');
+
+CREATE POLICY "Therapists can upload their own photos"
+    ON storage.objects FOR INSERT
+    WITH CHECK (
+        bucket_id = 'therapist-photos' AND
+        auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+CREATE POLICY "Therapists can update their own photos"
+    ON storage.objects FOR UPDATE
+    USING (
+        bucket_id = 'therapist-photos' AND
+        auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+-- Storage policies for user-avatars bucket (public)
+CREATE POLICY "Anyone can view user avatars"
+    ON storage.objects FOR SELECT
+    USING (bucket_id = 'user-avatars');
+
+CREATE POLICY "Users can upload their own avatars"
+    ON storage.objects FOR INSERT
+    WITH CHECK (
+        bucket_id = 'user-avatars' AND
+        auth.uid()::text = (storage.foldername(name))[1]
+    );
+
+CREATE POLICY "Users can update their own avatars"
+    ON storage.objects FOR UPDATE
+    USING (
+        bucket_id = 'user-avatars' AND
+        auth.uid()::text = (storage.foldername(name))[1]
+    );
 
 -- ============================================================================
 -- INITIAL DATA
@@ -644,6 +709,39 @@ INSERT INTO landing_page_sections (section_name, content) VALUES
 ('reviews', '{"reviews": [{"name": "User 1", "review": "Life-changing platform", "rating": 5}]}'),
 ('pricing', '{"plans": [{"name": "Basic", "price": 9.99, "features": []}, {"name": "Intermediate", "price": 14.99, "features": []}, {"name": "Advanced", "price": 24.99, "features": []}]}'),
 ('footer', '{"copyright": "© 2026 Mindfold. All rights reserved.", "links": []}');
+
+-- ============================================================================
+-- TEST DATA - FAKE THERAPISTS
+-- Note: These are for testing only. UUIDs need to be created in auth.users first
+-- To use: Register therapists via /auth/therapist-register, then update their data
+-- ============================================================================
+
+-- Example: After creating therapist accounts via the registration form, you can run:
+-- UPDATE therapist_profiles SET verification_status = 'approved' WHERE id = 'therapist-uuid';
+--
+-- Or insert test data directly if you've created auth users:
+/*
+INSERT INTO profiles (id, full_name, role, email) VALUES
+('11111111-1111-1111-1111-111111111111', 'Dr. Sarah Johnson', 'therapist', 'sarah.johnson@example.com'),
+('22222222-2222-2222-2222-222222222222', 'Dr. Michael Chen', 'therapist', 'michael.chen@example.com'),
+('33333333-3333-3333-3333-333333333333', 'Dr. Emily Rodriguez', 'therapist', 'emily.rodriguez@example.com')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO therapist_profiles (id, display_name, description, qualifications, verification_status, license_number, rating, total_patients) VALUES
+('11111111-1111-1111-1111-111111111111', 'Dr. Sarah Johnson', 'Licensed Clinical Psychologist specializing in anxiety, depression, and trauma recovery. 10+ years of experience helping clients achieve lasting change.', ARRAY['Ph.D. in Clinical Psychology', 'Licensed Clinical Psychologist (CA)', 'Certified CBT Therapist'], 'approved', 'PSY-12345', 4.9, 45),
+('22222222-2222-2222-2222-222222222222', 'Dr. Michael Chen', 'Board-certified psychiatrist with expertise in medication management and holistic mental health approaches. Passionate about integrative care.', ARRAY['M.D. Psychiatry', 'Board Certified Psychiatrist', 'Mindfulness-Based Therapy Certified'], 'approved', 'PSY-67890', 4.8, 38),
+('33333333-3333-3333-3333-333333333333', 'Dr. Emily Rodriguez', 'Marriage and Family Therapist helping individuals and couples navigate relationship challenges and personal growth.', ARRAY['M.A. Marriage & Family Therapy', 'Licensed MFT (NY)', 'Gottman Method Certified'], 'approved', 'MFT-54321', 4.7, 52)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO therapist_services (therapist_id, sessions_per_week, price_per_session, description) VALUES
+('11111111-1111-1111-1111-111111111111', 1, 120.00, 'Weekly 50-minute individual therapy sessions focused on your personalized treatment goals'),
+('11111111-1111-1111-1111-111111111111', 2, 110.00, 'Bi-weekly intensive therapy with ongoing support and homework assignments'),
+('22222222-2222-2222-2222-222222222222', 1, 150.00, 'Weekly psychiatric consultation including medication management and therapy'),
+('22222222-2222-2222-2222-222222222222', 2, 140.00, 'Intensive bi-weekly sessions with holistic mental health focus'),
+('33333333-3333-3333-3333-333333333333', 1, 130.00, 'Weekly individual or couples therapy with evidence-based techniques'),
+('33333333-3333-3333-3333-333333333333', 2, 120.00, 'Bi-weekly relationship-focused therapy with action plans')
+ON CONFLICT (id) DO NOTHING;
+*/
 
 -- ============================================================================
 -- NOTES

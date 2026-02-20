@@ -61,7 +61,7 @@ export default function JournalPage() {
     }
 
     return (
-        <div className="max-w-6xl">
+        <div className="w-full">
             <h1 className="text-2xl font-bold text-foreground mb-6">Journal</h1>
 
             {/* Calendar Header */}
@@ -103,10 +103,10 @@ export default function JournalPage() {
                                 key={day}
                                 onClick={() => openDay(day)}
                                 className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all text-left ${isToday
-                                        ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                                        : entry
-                                            ? "border-border bg-white hover:border-primary/30 hover:shadow-sm"
-                                            : "border-border bg-white hover:border-muted"
+                                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                                    : entry
+                                        ? "border-border bg-white hover:border-primary/30 hover:shadow-sm"
+                                        : "border-border bg-white hover:border-muted"
                                     }`}
                             >
                                 <div className="flex items-center gap-4">

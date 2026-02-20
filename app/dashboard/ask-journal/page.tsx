@@ -131,7 +131,7 @@ export default function AskJournalPage() {
     }
 
     return (
-        <div className="max-w-6xl h-[calc(100vh-8rem)]">
+        <div className="w-full h-[calc(100vh-8rem)]">
             <h1 className="text-2xl font-bold text-foreground mb-6">Ask Journal</h1>
 
             <div className="flex gap-4 h-[calc(100%-4rem)]">
@@ -154,8 +154,8 @@ export default function AskJournalPage() {
                             <button
                                 onClick={() => setChatMode("quick_reflect")}
                                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${chatMode === "quick_reflect"
-                                        ? "bg-primary text-white"
-                                        : "bg-white text-muted hover:bg-muted-bg"
+                                    ? "bg-primary text-white"
+                                    : "bg-white text-muted hover:bg-muted-bg"
                                     }`}
                             >
                                 <Zap className="h-3 w-3" />
@@ -164,8 +164,8 @@ export default function AskJournalPage() {
                             <button
                                 onClick={() => setChatMode("deep_reflect")}
                                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-medium transition-colors ${chatMode === "deep_reflect"
-                                        ? "bg-primary text-white"
-                                        : "bg-white text-muted hover:bg-muted-bg"
+                                    ? "bg-primary text-white"
+                                    : "bg-white text-muted hover:bg-muted-bg"
                                     }`}
                             >
                                 <Layers className="h-3 w-3" />
@@ -189,8 +189,8 @@ export default function AskJournalPage() {
                                 <div
                                     key={conv.id}
                                     className={`group flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${activeConvId === conv.id
-                                            ? "bg-primary/10 text-primary"
-                                            : "hover:bg-muted-bg text-foreground"
+                                        ? "bg-primary/10 text-primary"
+                                        : "hover:bg-muted-bg text-foreground"
                                         }`}
                                     onClick={() => setActiveConvId(conv.id)}
                                 >
@@ -236,8 +236,8 @@ export default function AskJournalPage() {
                             >
                                 <div
                                     className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${msg.role === "user"
-                                            ? "bg-primary text-white rounded-br-md"
-                                            : "bg-muted-bg text-foreground rounded-bl-md"
+                                        ? "bg-primary text-white rounded-br-md"
+                                        : "bg-muted-bg text-foreground rounded-bl-md"
                                         }`}
                                 >
                                     <p className="whitespace-pre-wrap">{msg.content}</p>

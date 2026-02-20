@@ -6,7 +6,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 /**
  * Signs up a new user with full name, email, and password.
@@ -102,15 +102,18 @@ export async function loginAction(formData: FormData) {
  */
 export async function therapistRegisterAction(formData: FormData) {
     const supabase = await createClient();
+    const admin = createAdminClient();
+    console.log('[therapistRegisterAction] Start registration');
 
     const fullName = formData.get("fullName") as string;
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
     const licenseNumber = formData.get("licenseNumber") as string;
-    const governmentId = formData.get("governmentId") as File;
-    const degreeCertificate = formData.get("degreeCertificate") as File;
+    const governmentIdUrl = formData.get("governmentIdUrl") as string;
+    const degreeCertificateUrl = formData.get("degreeCertificateUrl") as string;
 
     // 1. Create auth user
+    console.log('[therapistRegisterAction] Signing up user:', email);
     const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -118,45 +121,34 @@ export async function therapistRegisterAction(formData: FormData) {
             data: { full_name: fullName },
         },
     });
-
     if (authError || !authData.user) {
+        console.error('[therapistRegisterAction] Auth signup error:', authError);
         return { error: authError?.message || "Registration failed." };
     }
-
     const userId = authData.user.id;
+    console.log('[therapistRegisterAction] Auth user created:', userId);
 
-    // 2. Upload documents to Supabase Storage
-    let governmentIdUrl = "";
-    let degreeCertificateUrl = "";
+    // Documents already uploaded client-side, URLs provided (these are storage paths)
+    console.log('[therapistRegisterAction] Document paths:', governmentIdUrl, degreeCertificateUrl);
+    // Since bucket is private, we'll store the storage paths directly
+    // Admin panel will generate signed URLs when viewing documents
 
-    if (governmentId && governmentId.size > 0) {
-        const { data } = await supabase.storage
-            .from("therapist-documents")
-            .upload(`${userId}/government-id-${Date.now()}`, governmentId);
-        if (data) governmentIdUrl = data.path;
-    }
-
-    if (degreeCertificate && degreeCertificate.size > 0) {
-        const { data } = await supabase.storage
-            .from("therapist-documents")
-            .upload(`${userId}/degree-cert-${Date.now()}`, degreeCertificate);
-        if (data) degreeCertificateUrl = data.path;
-    }
-
-    // 3. Create profile row
-    const { error: profileError } = await supabase.from("profiles").insert({
+    // 3. Create profile row using admin client to avoid auth/session issues during sign up
+    console.log('[therapistRegisterAction] Inserting profile row:', userId);
+    const { error: profileError } = await admin.from("profiles").insert({
         id: userId,
         full_name: fullName,
         email,
         role: "therapist",
     });
-
     if (profileError) {
+        console.error('[therapistRegisterAction] Profile insert error:', profileError);
         return { error: "Failed to create profile." };
     }
 
-    // 4. Create therapist_profile row
-    await supabase.from("therapist_profiles").insert({
+    // 4. Create therapist_profile row using admin client
+    console.log('[therapistRegisterAction] Inserting therapist_profile row:', userId);
+    const { error: therapistError } = await admin.from("therapist_profiles").insert({
         id: userId,
         display_name: fullName,
         license_number: licenseNumber,
@@ -164,6 +156,11 @@ export async function therapistRegisterAction(formData: FormData) {
         degree_certificate_url: degreeCertificateUrl,
         verification_status: "pending",
     });
+    if (therapistError) {
+        console.error('[therapistRegisterAction] Therapist profile insert error:', therapistError);
+        return { error: "Failed to create therapist profile." };
+    }
+    console.log('[therapistRegisterAction] Registration complete:', userId);
 
     redirect("/auth/login?therapist_registered=true");
 }
