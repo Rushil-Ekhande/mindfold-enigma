@@ -55,7 +55,7 @@ export default function MetricCard({
 
   return (
     <div
-      className="relative bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
+      className="relative bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all hover-shake"
       style={{ minHeight: "280px" }}
     >
       <style jsx>{`
@@ -70,6 +70,18 @@ export default function MetricCard({
             transform: translateX(-50%) translateZ(0) scaleY(1);
           }
         }
+        @keyframes shake {
+          0%,
+          100% {
+            transform: translateX(0) rotate(0deg);
+          }
+          25% {
+            transform: translateX(-2px) rotate(-0.5deg);
+          }
+          75% {
+            transform: translateX(2px) rotate(0.5deg);
+          }
+        }
         .wave {
           animation: wave 3s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
           transform: translate3d(0, 0, 0);
@@ -78,6 +90,10 @@ export default function MetricCard({
           animation-duration: 4s;
           animation-direction: reverse;
           opacity: 0.6;
+        }
+        .hover-shake:hover {
+          animation: shake 0.5s ease-in-out infinite;
+        }
         }
       `}</style>
 
