@@ -26,6 +26,17 @@ interface ServiceData {
     is_active: boolean;
 }
 
+interface TherapistProfile {
+    display_name: string | null;
+    description: string | null;
+    qualifications: string[] | null;
+    services: ServiceData[];
+    verification_status: string;
+    rejection_reason: string | null;
+    rejection_count: number;
+    can_resubmit: boolean;
+}
+
 export default function TherapistSettingsPage() {
     const [displayName, setDisplayName] = useState("");
     const [description, setDescription] = useState("");
@@ -34,6 +45,12 @@ export default function TherapistSettingsPage() {
     const [services, setServices] = useState<ServiceData[]>([]);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState("");
+    const [verificationStatus, setVerificationStatus] = useState<string>("");
+    const [rejectionInfo, setRejectionInfo] = useState<{
+        reason: string | null;
+        count: number;
+        canResubmit: boolean;
+    } | null>(null);
 
     // Fetch current settings
     useEffect(() => {
@@ -45,6 +62,14 @@ export default function TherapistSettingsPage() {
                 setDescription(data.description || "");
                 setQualifications(data.qualifications || []);
                 setServices(data.services || []);
+                setVerificationStatus(data.verification_status || "pending");
+                if (data.verification_status === "rejected") {
+                    setRejectionInfo({
+                        reason: data.rejection_reason,
+                        count: data.rejection_count || 0,
+                        canResubmit: data.can_resubmit ?? true,
+                    });
+                }
             }
         }
         fetchSettings();
@@ -87,6 +112,53 @@ export default function TherapistSettingsPage() {
     return (
         <div className="w-full">
             <h1 className="text-2xl font-bold text-foreground mb-6">Settings</h1>
+
+            {/* Verification Status Banner */}
+            {verificationStatus === "rejected" && rejectionInfo && (
+                <div className="bg-danger/10 border border-danger/30 rounded-xl p-5 mb-6">
+                    <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-danger/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-danger text-lg">⚠️</span>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-sm font-semibold text-danger mb-1">
+                                Verification Rejected
+                            </h3>
+                            <p className="text-sm text-danger/90 mb-2">
+                                {rejectionInfo.reason || "Your application has been rejected."}
+                            </p>
+                            {rejectionInfo.canResubmit ? (
+                                <a
+                                    href="/therapist/reverification"
+                                    className="inline-flex items-center gap-2 bg-danger text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                                >
+                                    Re-submit Documents
+                                </a>
+                            ) : (
+                                <p className="text-xs text-danger font-medium">
+                                    Maximum rejection limit reached ({rejectionInfo.count}/3)
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {verificationStatus === "pending" && (
+                <div className="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-6">
+                    <p className="text-sm text-accent font-medium">
+                        ⏳ Your profile is pending verification.
+                    </p>
+                </div>
+            )}
+
+            {verificationStatus === "approved" && (
+                <div className="bg-success/10 border border-success/30 rounded-xl p-4 mb-6">
+                    <p className="text-sm text-success font-medium">
+                        ✅ Your profile is verified and active!
+                    </p>
+                </div>
+            )}
 
             {/* Status Message */}
             {message && (
