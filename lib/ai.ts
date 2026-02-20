@@ -89,7 +89,7 @@ export async function askJournal(
         .join("\n\n");
 
     const entryCount = entries.length;
-    const contextNote = 
+    const contextNote =
         mode === "quick_reflect"
             ? `You are analyzing the user's recent journal entries (${entryCount} ${entryCount === 1 ? "entry" : "entries"}). Give a focused, concise answer based on what's available.`
             : `You are performing a deep analysis of the user's journal history (${entryCount} ${entryCount === 1 ? "entry" : "entries"}). Give a thorough, detailed answer with patterns and insights based on what's available.`;

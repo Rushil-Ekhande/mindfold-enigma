@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     if (!entries || entries.length === 0) {
         // Only show "no entries" message if literally zero entries exist
         const aiResponse = "It looks like your journal entries are missing! To help you reflect, I'll need to read what you've written.\n\nPlease start journaling by going to the Journal page, and then I'll be able to give you personalized, thoughtful, and supportive answers to your questions.";
-        
+
         // Save AI response
         await supabase.from("journal_chat_messages").insert({
             conversation_id: convId,

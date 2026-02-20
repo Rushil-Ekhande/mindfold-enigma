@@ -25,7 +25,7 @@ export default function JournalPage() {
     const month = currentDate.getMonth();
     const daysInMonth = getDaysInMonth(year, month);
     const monthStr = `${year}-${String(month + 1).padStart(2, "0")}`;
-    
+
     // Get today's date string for comparison
     const today = new Date().toISOString().split("T")[0];
 
@@ -102,8 +102,7 @@ export default function JournalPage() {
                             <button
                                 key={day}
                                 onClick={() => openDay(day)}
-                                className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all text-left ${
-                                    isToday
+                                className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all text-left ${isToday
                                         ? "border-primary bg-primary/5 ring-2 ring-primary/20"
                                         : entry
                                             ? "border-border bg-white hover:border-primary/30 hover:shadow-sm"
