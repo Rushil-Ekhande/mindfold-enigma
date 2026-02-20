@@ -52,23 +52,30 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="absolute top-0 left-0 right-0 z-50 flex justify-center pt-6 px-4">
-      <div className="flex items-center justify-between max-w-5xl w-full px-6 py-3">
+    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full pt-4 px-4 pointer-events-none">
+      <nav className="bg-white/95 backdrop-blur-lg border border-border shadow-sm rounded-full pointer-events-auto px-6 py-3 w-full max-w-5xl flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <Brain className="h-7 w-7 text-black" />
-          <span className="text-lg font-bold text-black">
-            {content.brandName}
-          </span>
+        <Link href="/" className="flex items-center gap-3">
+          <div className="bg-[#0a1128] text-white p-2 rounded-xl flex items-center justify-center">
+            <Brain className="h-5 w-5" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-base font-bold text-foreground leading-tight">
+              {content.brandName}
+            </span>
+            <span className="text-[10px] text-muted font-medium leading-tight">
+              By Teamtailor
+            </span>
+          </div>
         </Link>
 
         {/* Navigation Links */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-8">
           {content.links?.map((link, idx) => (
             <a
               key={idx}
               href={link.href}
-              className="text-sm text-black hover-underline transition-colors"
+              className="text-sm font-medium text-muted hover:text-foreground transition-colors"
             >
               {link.label}
             </a>
@@ -76,21 +83,21 @@ export default function Navbar() {
         </div>
 
         {/* Auth Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Link
             href="/auth/login"
-            className="text-sm font-medium text-black hover-underline transition-colors"
+            className="text-sm font-medium text-muted hover:text-foreground transition-colors hidden sm:block"
           >
             {content.loginText}
           </Link>
           <Link
             href="/auth/signup"
-            className="text-sm font-medium bg-black text-white px-5 py-2 rounded-full hover:bg-gray-800 transition-colors shadow-sm"
+            className="text-sm font-semibold bg-black/5 text-[#0a1128] border border-black/10 px-5 py-2.5 rounded-full hover:bg-[#0a1128] hover:text-white transition-colors"
           >
-            {content.signupText}
+            {content.signupText || "Book demo"}
           </Link>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 }
