@@ -1,0 +1,42 @@
+{
+    "servers": {
+        "shadcn": {
+            "command": "npx",
+            "args": [
+                "shadcn@latest",
+                "mcp"
+            ],
+        },
+        "tavily": {
+            "url": "https://mcp.tavily.com/mcp/?tavilyApiKey=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"
+        },
+        "context7": {
+            "url": "https://mcp.context7.com/mcp",
+            "headers": {
+                "CONTEXT7_API_KEY": "ctx7sk-d05ddcc7-3bf7-43af-8cb0-94090e80c699"
+            }
+        },
+        // ReflectRiver.com Supabase
+        "supabase": {
+            "url": "https://mcp.supabase.com/mcp?project_ref=wodcwtuackisydbnmlpb",
+            "headers": {
+                "Authorization": "Bearer sbp_1297bb635b46bb0f5776bb8a83be3977e540a40e"
+            }
+        },
+        "dodo-knowledge": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-remote@latest",
+                "https://knowledge.dodopayments.com/mcp"
+            ]
+        },
+        "next-devtools": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "next-devtools-mcp@latest"
+            ]
+        }
+    }
+}
