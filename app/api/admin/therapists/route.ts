@@ -48,12 +48,43 @@ export async function GET() {
             return NextResponse.json({ error: profileError.message }, { status: 500 });
         }
 
-        // Merge the data
+        // Merge the data and generate fresh signed URLs for documents
         const profileMap = new Map(profiles?.map((p) => [p.id, p]) || []);
-        const result = therapistProfiles.map((therapist) => ({
-            ...therapist,
-            profiles: profileMap.get(therapist.id) || null,
-        }));
+        
+        const result = await Promise.all(
+            therapistProfiles.map(async (therapist) => {
+                let govIdUrl = therapist.government_id_url;
+                let degreeCertUrl = therapist.degree_certificate_url;
+
+                // Generate fresh signed URLs if paths exist (valid for 1 hour)
+                if (govIdUrl && !govIdUrl.startsWith('http')) {
+                    // It's a path, generate signed URL
+                    const { data: signedData } = await supabase.storage
+                        .from("therapist-documents")
+                        .createSignedUrl(govIdUrl, 3600); // 1 hour
+                    if (signedData?.signedUrl) {
+                        govIdUrl = signedData.signedUrl;
+                    }
+                }
+
+                if (degreeCertUrl && !degreeCertUrl.startsWith('http')) {
+                    // It's a path, generate signed URL
+                    const { data: signedData } = await supabase.storage
+                        .from("therapist-documents")
+                        .createSignedUrl(degreeCertUrl, 3600); // 1 hour
+                    if (signedData?.signedUrl) {
+                        degreeCertUrl = signedData.signedUrl;
+                    }
+                }
+
+                return {
+                    ...therapist,
+                    government_id_url: govIdUrl,
+                    degree_certificate_url: degreeCertUrl,
+                    profiles: profileMap.get(therapist.id) || null,
+                };
+            })
+        );
 
         return NextResponse.json(result);
     } catch (error) {

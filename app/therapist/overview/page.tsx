@@ -44,6 +44,10 @@ export default async function TherapistOverviewPage() {
         .eq("status", "requested");
 
     const isVerified = therapistProfile?.verification_status === "approved";
+    const isRejected = therapistProfile?.verification_status === "rejected";
+    const isPending = therapistProfile?.verification_status === "pending";
+    const canResubmit = therapistProfile?.can_resubmit ?? true;
+    const rejectionCount = therapistProfile?.rejection_count || 0;
 
     const metrics = [
         {
@@ -82,12 +86,50 @@ export default async function TherapistOverviewPage() {
             </div>
 
             {/* Verification Status */}
-            {!isVerified && (
+            {isPending && (
                 <div className="bg-accent/10 border border-accent/30 rounded-xl p-4 mb-8">
                     <p className="text-sm text-accent font-medium">
                         ⏳ Your profile is pending verification. You&apos;ll be able to accept
                         patients once approved by our admin team.
                     </p>
+                </div>
+            )}
+
+            {/* Rejection Alert */}
+            {isRejected && (
+                <div className="bg-danger/10 border border-danger/30 rounded-xl p-5 mb-8">
+                    <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-danger/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <span className="text-danger text-lg">⚠️</span>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-sm font-semibold text-danger mb-1">
+                                Application Rejected
+                            </h3>
+                            <p className="text-sm text-danger/90 mb-3">
+                                {therapistProfile?.rejection_reason || "Your application has been rejected."}
+                            </p>
+                            {canResubmit ? (
+                                <div className="space-y-2">
+                                    <p className="text-xs text-muted">
+                                        Rejection count: {rejectionCount}/3
+                                    </p>
+                                    <a
+                                        href="/therapist/reverification"
+                                        className="inline-flex items-center gap-2 bg-danger text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition-colors"
+                                    >
+                                        Re-submit Documents
+                                    </a>
+                                </div>
+                            ) : (
+                                <div className="bg-danger/20 rounded-lg p-3 mt-2">
+                                    <p className="text-xs text-danger font-medium">
+                                        ❌ Maximum rejection limit reached (3/3). You cannot resubmit documents at this time.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
 
