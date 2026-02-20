@@ -19,6 +19,7 @@ export type SubscriptionPlan = "basic" | "intermediate" | "advanced";
 export type ChatMode = "quick_reflect" | "deep_reflect";
 export type TransactionType = "subscription" | "therapist_payment" | "refund";
 export type TransactionStatus = "pending" | "completed" | "failed" | "refunded";
+export type PrescriptionType = "prescription" | "preventive_measure";
 
 // --------------------------------------------------------------------------
 // Database Row Types
@@ -159,6 +160,40 @@ export interface SessionNote {
     doctors_notes: string | null;
     prescription: string | null;
     exercises: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+/** Direct message between therapist and patient */
+export interface TherapistMessage {
+    id: string;
+    relationship_id: string;
+    sender_id: string;
+    receiver_id: string;
+    content: string;
+    created_at: string;
+}
+
+/** User review for a therapist */
+export interface TherapistReview {
+    id: string;
+    therapist_id: string;
+    user_id: string;
+    rating: number;
+    review_text: string | null;
+    created_at: string;
+    profiles?: { full_name: string };
+}
+
+/** Prescription or preventive measure from therapist */
+export interface Prescription {
+    id: string;
+    therapist_id: string;
+    user_id: string;
+    relationship_id: string;
+    type: PrescriptionType;
+    title: string;
+    content: string;
     created_at: string;
     updated_at: string;
 }

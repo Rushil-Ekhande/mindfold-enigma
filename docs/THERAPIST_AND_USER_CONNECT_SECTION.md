@@ -1,0 +1,9 @@
+For the current project setup, do not alter the existing structure. Build upon the remaining new features. In both Therapist and User sections, there is no connection between the two. So now, In the Patients section and Therapists Section, build the following :|
+
+# User Side:
+
+In the My Therapist section, the user should be able to see all the available therapists for hire with all of their pricing and other details, and for further details the user can click on the card for that therapist and see more details. If the user already has hired a therapist, then they should not be allowed to search for another therapist. Instead they should be allowed to communicate with the therapist in a section where they can chat with the therapist, and ping them in case they need to talk to them via video or audio call (like a live session for therapy, using the jitsi iframe api). The user can also decide what journal pages can be shared with the therapist (these pages will only be read-only so that the therapist cannot modify the pages, a parameter in supabase called visible_to_therapist will be used for that which is a boolean). The user can also see the therapist's prescription and and also some preventive measures for the user's mental health. the user should also be able to rate the therapist and give some review, which will be used for the therapist's profile.
+
+# Therapist Side:
+
+In the Patients section, the therapist should be able to see all of their patients in cards, and can click on any of them and then connect with them. they should be able to also chat with them, view any session pings and will have the authority to schedule a live session with the user (using the jitsi iframe api). Therapist can also see what the user has allowed them to see from the user's journal entries, and can also give prescriptions and preventive measures to the user.
