@@ -70,13 +70,32 @@ export default function AdminTherapistsPage() {
         status: "approved" | "rejected"
     ) {
         setUpdating(therapistId);
-        await fetch("/api/admin/stats", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ therapist_id: therapistId, status }),
-        });
-        await fetchTherapists();
-        setUpdating(null);
+        try {
+            const res = await fetch("/api/admin/stats", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ therapist_id: therapistId, status }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                console.error("Failed to update therapist:", data);
+                alert(`Failed to ${status} therapist: ${data.error || "Unknown error"}`);
+                setUpdating(null);
+                return;
+            }
+
+            console.log("Successfully updated therapist:", data);
+            
+            // Refresh the list
+            await fetchTherapists();
+        } catch (error) {
+            console.error("Error updating therapist:", error);
+            alert(`Failed to ${status} therapist. Please try again.`);
+        } finally {
+            setUpdating(null);
+        }
     }
 
     const filtered = therapists.filter(
