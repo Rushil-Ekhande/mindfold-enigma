@@ -28,7 +28,9 @@ export default function JournalPage() {
   // Fetch entries for the current month
   const fetchEntries = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/journal?month=${monthStr}`, { cache: "no-store" });
+    const res = await fetch(`/api/journal?month=${monthStr}`, {
+      cache: "no-store",
+    });
     const data = await res.json();
     setEntries(Array.isArray(data) ? data : []);
     setLoading(false);
@@ -96,7 +98,7 @@ export default function JournalPage() {
               <button
                 key={day}
                 onClick={() => openDay(day)}
-                className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all text-left ${
+                className={`w-full flex items-center justify-between px-5 py-14 rounded-xl border transition-all text-left ${
                   isToday
                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
                     : entry
