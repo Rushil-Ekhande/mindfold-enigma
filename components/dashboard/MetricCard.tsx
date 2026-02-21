@@ -56,18 +56,15 @@ export default function MetricCard({
   return (
     <div
       className="relative bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all hover-shake"
-      style={{ minHeight: "280px" }}
+      style={{ minHeight: "220px" }}
     >
       <style jsx>{`
-        @keyframes wave {
+        @keyframes wave-flow {
           0% {
-            transform: translateX(0) translateZ(0) scaleY(1);
-          }
-          50% {
-            transform: translateX(-25%) translateZ(0) scaleY(0.95);
+            transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%) translateZ(0) scaleY(1);
+            transform: translateX(-50%);
           }
         }
         @keyframes shake {
@@ -82,55 +79,85 @@ export default function MetricCard({
             transform: translateX(2px) rotate(0.5deg);
           }
         }
-        .wave {
-          animation: wave 4s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
-          transform: translate3d(0, 0, 0);
+        .wave-layer {
+          animation: wave-flow 10s linear infinite;
+          will-change: transform;
         }
-        .wave:nth-of-type(2) {
-          animation-duration: 5s;
-          animation-direction: reverse;
-          opacity: 0.6;
+        .wave-layer-2 {
+          animation: wave-flow 15s linear infinite;
+          will-change: transform;
         }
         .hover-shake:hover {
           animation: shake 0.5s ease-in-out infinite;
         }
-        }
       `}</style>
 
-      {/* Wave Background */}
+      {/* Wave Background Container */}
       <div
-        className="absolute inset-x-0 bottom-0"
+        className="absolute inset-x-0 bottom-0 overflow-hidden"
         style={{
           height: `${value}%`,
-          background: waveColors.primary,
-          opacity: 0.7,
         }}
       >
-        {/* Single wave animation at the top edge */}
-        <svg
-          className="wave absolute"
-          style={{
-            top: "-50px",
-            left: 0,
-            width: "200%",
-            height: "120px",
-          }}
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-        >
-          <path
-            fill={waveColors.primary}
-            fillOpacity="1"
-            d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,138.7C960,139,1056,117,1152,101.3C1248,85,1344,75,1392,69.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-          />
-        </svg>
+        {/* First wave layer - fills entire container */}
+        <div className="absolute inset-0">
+          <svg
+            className="wave-layer absolute"
+            style={{
+              top: 0,
+              left: 0,
+              width: "200%",
+              height: "100%",
+            }}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 320"
+            preserveAspectRatio="none"
+          >
+            <path
+              fill={waveColors.primary}
+              fillOpacity="0.8"
+              d="M0,80 C240,120 480,40 720,80 C960,120 1200,40 1440,80 L1440,320 L0,320 Z"
+            />
+            <path
+              fill={waveColors.primary}
+              fillOpacity="0.8"
+              d="M1440,80 C1680,120 1920,40 2160,80 C2400,120 2640,40 2880,80 L2880,320 L1440,320 Z"
+            />
+          </svg>
+        </div>
+
+        {/* Second wave layer - fills entire container */}
+        <div className="absolute inset-0">
+          <svg
+            className="wave-layer-2 absolute"
+            style={{
+              top: 0,
+              left: 0,
+              width: "200%",
+              height: "100%",
+            }}
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 320"
+            preserveAspectRatio="none"
+          >
+            <path
+              fill={waveColors.secondary}
+              fillOpacity="0.7"
+              d="M0,70 C320,100 640,40 960,70 C1280,100 1440,40 1440,70 L1440,320 L0,320 Z"
+            />
+            <path
+              fill={waveColors.secondary}
+              fillOpacity="0.7"
+              d="M1440,70 C1760,100 2080,40 2400,70 C2720,100 2880,40 2880,70 L2880,320 L1440,320 Z"
+            />
+          </svg>
+        </div>
       </div>
 
       {/* Content - positioned above waves */}
-      <div className="relative z-10 p-6 flex flex-col h-full justify-between">
+      <div className="relative z-10 p-5 flex flex-col h-full justify-between">
         <div className="flex items-start justify-between">
-          <div className="text-4xl font-bold" style={{ color: textColor }}>
+          <div className="text-3xl font-bold" style={{ color: textColor }}>
             {value}%
           </div>
           <div className="text-right">
