@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
 
+// Service-role client for writes that bypass RLS
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -10,57 +11,79 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: NextRequest) {
     try {
+        // Authenticate the calling user
         const supabase = await createServerClient();
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const {
+            data: { user },
+            error: authError,
+        } = await supabase.auth.getUser();
 
         if (authError || !user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { subscriptionId, planName, billingCycle } = await request.json();
+        const body = await request.json();
+        const subscriptionId: string | null = body.subscriptionId ?? null;
+        const planName: string = body.planName ?? "basic";
+        const billingCycle: string = body.billingCycle ?? "monthly";
 
-        const currentPeriodStart = new Date();
-        const currentPeriodEnd = new Date();
+        // Look up plan price so we always have a valid amount
+        const { data: plan } = await supabaseAdmin
+            .from("subscription_plans")
+            .select("price_monthly, price_yearly")
+            .eq("plan_name", planName)
+            .maybeSingle();
+
+        const amount =
+            billingCycle === "yearly"
+                ? (plan?.price_yearly ?? 0)
+                : (plan?.price_monthly ?? 0);
+
+        const now = new Date();
+        const periodStart = now;
+        const periodEnd = new Date(now);
         if (billingCycle === "yearly") {
-            currentPeriodEnd.setFullYear(currentPeriodEnd.getFullYear() + 1);
+            periodEnd.setFullYear(periodEnd.getFullYear() + 1);
         } else {
-            currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + 1);
+            periodEnd.setMonth(periodEnd.getMonth() + 1);
         }
 
-        // Upsert the subscription as active immediately
-        const { error: subError } = await supabaseAdmin
+        // Deactivate any existing active subscription for this user
+        await supabaseAdmin
             .from("user_subscriptions")
-            .upsert(
-                {
-                    user_id: user.id,
-                    plan_name: planName ?? "basic",
-                    status: "active",
-                    dodo_subscription_id: subscriptionId ?? null,
-                    current_period_start: currentPeriodStart.toISOString(),
-                    current_period_end: currentPeriodEnd.toISOString(),
-                    billing_cycle: billingCycle ?? "monthly",
-                    updated_at: new Date().toISOString(),
-                },
-                { onConflict: "user_id" }
-            );
+            .update({ status: "superseded", updated_at: now.toISOString() })
+            .eq("user_id", user.id)
+            .eq("status", "active");
 
-        if (subError) {
-            console.error("Error activating subscription:", subError);
+        // Insert the new active subscription
+        const { error: insertError } = await supabaseAdmin
+            .from("user_subscriptions")
+            .insert({
+                user_id: user.id,
+                plan_name: planName,
+                status: "active",
+                dodo_subscription_id: subscriptionId,
+                billing_cycle: billingCycle,
+                amount,
+                currency: "USD",
+                current_period_start: periodStart.toISOString(),
+                current_period_end: periodEnd.toISOString(),
+            });
+
+        if (insertError) {
+            console.error("[activate] Insert error:", insertError);
             return NextResponse.json({ error: "Failed to activate subscription" }, { status: 500 });
         }
 
-        // Update user profile plan
-        if (planName) {
-            await supabaseAdmin
-                .from("user_profiles")
-                .update({ subscription_plan: planName })
-                .eq("id", user.id);
-        }
+        // Reflect plan on user_profiles (best-effort)
+        await supabaseAdmin
+            .from("user_profiles")
+            .update({ subscription_plan: planName })
+            .eq("id", user.id);
 
-        console.log(`Subscription instantly activated for user ${user.id}, plan ${planName}`);
-        return NextResponse.json({ success: true, plan: planName ?? "basic", status: "active" });
+        return NextResponse.json({ success: true, plan: planName, status: "active" });
     } catch (error) {
-        console.error("Activate subscription error:", error);
+        console.error("[activate] Error:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }

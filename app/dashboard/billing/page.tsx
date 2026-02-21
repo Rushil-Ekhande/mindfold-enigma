@@ -27,8 +27,8 @@ const plans: Plan[] = [
             "Unlimited journal entries",
             "View your entries anytime",
             "Basic mental health tracking",
-            "No AI features included"
-        ]
+            "No AI features included",
+        ],
     },
     {
         id: "basic",
@@ -42,8 +42,8 @@ const plans: Plan[] = [
             "15 requests of quick reflect",
             "5 requests of deep reflect",
             "Monthly wrap report",
-            "Therapist included - 2 sessions per week"
-        ]
+            "Therapist included - 2 sessions per week",
+        ],
     },
     {
         id: "intermediate",
@@ -57,9 +57,9 @@ const plans: Plan[] = [
             "25 requests of quick reflect",
             "10 requests of deep reflect",
             "Monthly wrap report",
-            "Therapist included - 3 sessions per week"
+            "Therapist included - 3 sessions per week",
         ],
-        highlighted: true
+        highlighted: true,
     },
     {
         id: "advanced",
@@ -73,14 +73,20 @@ const plans: Plan[] = [
             "30 requests of quick reflect",
             "15 requests of deep reflect",
             "Monthly wrap report",
-            "Therapist included - 4 sessions per week"
-        ]
-    }
+            "Therapist included - 4 sessions per week",
+        ],
+    },
 ];
 
 export default function BillingPage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+        <Suspense
+            fallback={
+                <div className="flex items-center justify-center min-h-screen">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            }
+        >
             <BillingContent />
         </Suspense>
     );
@@ -90,7 +96,6 @@ function BillingContent() {
     const searchParams = useSearchParams();
     const session = searchParams.get("session");
     const subscriptionId = searchParams.get("subscription_id");
-    const planFromUrl = searchParams.get("plan");
 
     const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
     const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -99,121 +104,102 @@ function BillingContent() {
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        if (session === "success") {
-            const activate = async () => {
+        async function initialize() {
+            if (session === "success") {
+                // Attempt instant activation
                 try {
-                    const response = await fetch("/api/subscription/activate", {
+                    const activateRes = await fetch("/api/subscription/activate", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            subscriptionId: subscriptionId,
-                            planName: planFromUrl ?? null,
-                            billingCycle: billingCycle,
+                            subscriptionId: subscriptionId ?? null,
+                            billingCycle,
                         }),
                     });
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        const activatedPlan = data.plan ?? "basic";
-                        setCurrentPlan(activatedPlan);
-                        setSuccessMessage(`🎉 Your ${activatedPlan.charAt(0).toUpperCase() + activatedPlan.slice(1)} plan is now active!`);
+                    if (activateRes.ok) {
+                        const data = await activateRes.json();
+                        const plan = data.plan ?? "basic";
+                        setCurrentPlan(plan);
+                        setSuccessMessage(
+                            `🎉 Your ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan is now active!`
+                        );
                     } else {
+                        setSuccessMessage("✅ Payment received! Activating your subscription...");
                         await loadCurrentSubscription();
-                        setSuccessMessage("✅ Payment received! Your plan will be activated shortly.");
                     }
-                } catch (error) {
-                    console.error("Failed to activate subscription:", error);
-                    setSuccessMessage("✅ Payment received! Your plan will be activated shortly.");
-                } finally {
-                    setLoading(false);
+                } catch {
+                    setSuccessMessage("✅ Payment received! Activating your subscription...");
+                    await loadCurrentSubscription();
                 }
-            };
-            activate();
-        } else {
-            loadCurrentSubscription();
+            } else {
+                await loadCurrentSubscription();
+            }
+            setLoading(false);
         }
+        initialize();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [session, subscriptionId]);
 
-    const loadCurrentSubscription = async () => {
+    async function loadCurrentSubscription() {
         try {
-            const response = await fetch("/api/subscription");
-            if (response.ok) {
-                const data = await response.json();
+            const res = await fetch("/api/subscription");
+            if (res.ok) {
+                const data = await res.json();
                 if (data.subscription?.plan_name) {
                     setCurrentPlan(data.subscription.plan_name);
                 }
             }
-        } catch (error) {
-            console.error("Failed to load subscription:", error);
-        } finally {
-            setLoading(false);
+        } catch (err) {
+            console.error("Failed to load subscription:", err);
         }
-    };
+    }
 
-    const handleSubscribe = async (planId: string) => {
-        // Free plan doesn't need checkout
-        if (planId === "free") {
-            return;
-        }
+    async function handleSubscribe(planId: string) {
+        if (planId === "free") return;
 
         setLoadingPlan(planId);
-
         try {
-            // Create checkout session
-            const response = await fetch("/api/checkout", {
+            const res = await fetch("/api/checkout", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    planId,
-                    billingCycle,
-                }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ planId, billingCycle }),
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to create checkout session");
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error ?? "Checkout failed");
             }
 
-            const data = await response.json();
-
-            // Redirect to Dodo Payments checkout
+            const data = await res.json();
             if (data.checkout_url) {
                 window.location.href = data.checkout_url;
             }
         } catch (error) {
-            console.error("Error creating checkout session:", error);
-            alert(`Failed to start checkout: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            console.error("Checkout error:", error);
+            alert(`Failed to start checkout: ${error instanceof Error ? error.message : "Unknown error"}`);
         } finally {
             setLoadingPlan(null);
         }
-    };
+    }
 
-    const getPrice = (plan: Plan) => {
+    function getPrice(plan: Plan) {
         return billingCycle === "monthly" ? plan.price : plan.yearlyPrice / 12;
-    };
+    }
 
-    const getSavings = (plan: Plan) => {
-        const monthlyCost = plan.price * 12;
-        const yearlyCost = plan.yearlyPrice;
-        return monthlyCost - yearlyCost;
-    };
+    function getSavings(plan: Plan) {
+        return plan.price * 12 - plan.yearlyPrice;
+    }
 
-    const isPlanActive = (planId: string) => {
+    function isPlanActive(planId: string) {
         return currentPlan === planId;
-    };
+    }
 
-    const getButtonText = (planId: string) => {
-        if (isPlanActive(planId)) {
-            return "Current Plan";
-        }
-        if (planId === "free") {
-            return "Free Forever";
-        }
+    function getButtonText(planId: string) {
+        if (isPlanActive(planId)) return "Current Plan";
+        if (planId === "free") return "Free Forever";
         return "Upgrade Now";
-    };
+    }
 
     if (loading) {
         return (

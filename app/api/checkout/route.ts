@@ -1,45 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+const DODO_API_URL =
+    process.env.DODO_PAYMENTS_ENVIRONMENT === "test_mode"
+        ? "https://test.dodopayments.com"
+        : "https://live.dodopayments.com";
+
+const BASE_RETURN_URL =
+    process.env.DODO_PAYMENTS_RETURN_URL ?? "http://localhost:3000/dashboard";
+
 export async function POST(request: NextRequest) {
     try {
         const supabase = await createClient();
 
-        // Get authenticated user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        const {
+            data: { user },
+            error: authError,
+        } = await supabase.auth.getUser();
 
         if (authError || !user) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { planId, billingCycle } = await request.json();
+        const body = await request.json();
+        const planId: string | undefined = body.planId;
+        const billingCycle: string | undefined = body.billingCycle;
 
         if (!planId || !billingCycle) {
             return NextResponse.json(
-                { error: "Missing required fields: planId, billingCycle" },
+                { error: "planId and billingCycle are required" },
                 { status: 400 }
             );
         }
 
-        // Get plan details from database
+        // Fetch plan details (must have a Dodo product ID)
         const { data: plan, error: planError } = await supabase
             .from("subscription_plans")
-            .select("*")
+            .select("plan_name, dodo_product_id")
             .eq("plan_name", planId)
             .eq("is_active", true)
             .single();
 
         if (planError || !plan) {
+            return NextResponse.json({ error: "Plan not found" }, { status: 404 });
+        }
+
+        if (!plan.dodo_product_id) {
             return NextResponse.json(
-                { error: "Plan not found" },
-                { status: 404 }
+                { error: "No Dodo product configured for this plan" },
+                { status: 422 }
             );
         }
 
-        // Get user profile
+        // Fetch user email & display name
         const { data: profile } = await supabase
             .from("profiles")
             .select("email, full_name")
@@ -48,76 +61,51 @@ export async function POST(request: NextRequest) {
 
         if (!profile?.email) {
             return NextResponse.json(
-                { error: "User profile email not found" },
+                { error: "User email not found" },
                 { status: 400 }
             );
         }
 
-        // Create checkout session with Dodo Payments using the correct API
-        const apiUrl = process.env.DODO_PAYMENTS_ENVIRONMENT === 'test_mode'
-            ? 'https://test.dodopayments.com'
-            : 'https://live.dodopayments.com';
+        // Build return URL — Dodo appends subscription_id, payment_id, status automatically
+        const returnUrl = `${BASE_RETURN_URL}/billing?session=success`;
 
-        // DEBUG LOGGING
-        console.log('Dodo Payments API Debug:', {
-            apiUrl,
-            apiKey: process.env.DODO_PAYMENTS_API_KEY,
-            env: process.env.DODO_PAYMENTS_ENVIRONMENT,
-            returnUrl: process.env.DODO_PAYMENTS_RETURN_URL,
-        });
-
-        const checkoutResponse = await fetch(`${apiUrl}/checkouts`, {
+        // Create the checkout session
+        const dodoRes = await fetch(`${DODO_API_URL}/checkouts`, {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${process.env.DODO_PAYMENTS_API_KEY}`,
+                Authorization: `Bearer ${process.env.DODO_PAYMENTS_API_KEY}`,
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                product_cart: [
-                    {
-                        product_id: plan.dodo_product_id,
-                        quantity: 1,
-                    }
-                ],
+                product_cart: [{ product_id: plan.dodo_product_id, quantity: 1 }],
                 customer: {
                     email: profile.email,
-                    name: profile.full_name || profile.email.split('@')[0],
+                    name: profile.full_name ?? profile.email.split("@")[0],
                 },
-                return_url: `${process.env.DODO_PAYMENTS_RETURN_URL || 'http://localhost:3000/dashboard'}/billing?session=success`,
+                return_url: returnUrl,
+                // Metadata lets webhook handler know which user/plan to activate
+                metadata: {
+                    user_id: user.id,
+                    plan_name: planId,
+                    billing_cycle: billingCycle,
+                },
             }),
         });
 
-        // Log full response for debugging
-        const responseText = await checkoutResponse.text();
-        let checkoutData: { checkout_url?: string; session_id?: string } = {};
-        try {
-            checkoutData = JSON.parse(responseText);
-        } catch {
-            console.error('Failed to parse Dodo Payments response:', responseText);
-        }
-
-        if (!checkoutResponse.ok) {
-            console.error("Dodo Payments API error:", {
-                status: checkoutResponse.status,
-                body: responseText,
-            });
+        if (!dodoRes.ok) {
+            const text = await dodoRes.text();
+            console.error("Dodo Payments checkout error:", dodoRes.status, text);
             return NextResponse.json(
-                { error: "Failed to create checkout session", details: responseText },
-                { status: 500 }
+                { error: "Failed to create checkout session" },
+                { status: 502 }
             );
         }
 
-        return NextResponse.json({
-            checkout_url: checkoutData.checkout_url,
-            session_id: checkoutData.session_id,
-            raw: responseText,
-        });
+        const data = await dodoRes.json() as { checkout_url?: string; session_id?: string };
 
+        return NextResponse.json({ checkout_url: data.checkout_url });
     } catch (error) {
         console.error("Checkout error:", error);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 }
