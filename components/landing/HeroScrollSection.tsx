@@ -9,7 +9,10 @@ import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 
 export default function HeroScrollSection() {
   return (
-    <div className="flex flex-col overflow-hidden bg-white">
+    <div
+      className="flex flex-col bg-white"
+      style={{ overflowX: "hidden" }}
+    >
       <ContainerScroll
         titleComponent={
           <>
@@ -22,16 +25,36 @@ export default function HeroScrollSection() {
           </>
         }
       >
-        <video
-          src="/dashboard-demo.mp4"
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full rounded-2xl object-cover object-left-top"
+        <img
+          src="/dashboard-preview.png"
+          alt="Mindfold dashboard preview"
+          width={1280}
+          height={720}
+          className="rounded-2xl"
+          style={{
+            display: "block",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            objectPosition: "left top",
+            position: "relative",
+            zIndex: 1,
+          }}
         />
       </ContainerScroll>
+
+      {/* Static fallback if JS/Framer Motion never initialises */}
+      <noscript>
+        <div style={{ maxWidth: "80rem", margin: "0 auto", padding: "2rem" }}>
+          <img
+            src="/dashboard-preview.png"
+            alt="Mindfold dashboard preview"
+            width={1280}
+            height={720}
+            style={{ width: "100%", height: "auto", borderRadius: "1rem" }}
+          />
+        </div>
+      </noscript>
     </div>
   );
 }
-
