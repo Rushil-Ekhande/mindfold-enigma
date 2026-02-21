@@ -6,7 +6,6 @@
 
 import React from "react";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
-import Image from "next/image";
 
 export default function HeroScrollSection() {
   return (
@@ -23,15 +22,16 @@ export default function HeroScrollSection() {
           </>
         }
       >
-        <Image
-          src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1400&q=80"
-          alt="Mindfold dashboard preview"
-          height={720}
-          width={1400}
-          className="mx-auto rounded-2xl object-cover h-full object-left-top"
-          draggable={false}
+        <video
+          src="/dashboard-demo.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full rounded-2xl object-cover object-left-top"
         />
       </ContainerScroll>
     </div>
   );
 }
+
