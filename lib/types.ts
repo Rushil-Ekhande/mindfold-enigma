@@ -1,3 +1,39 @@
+// Journal Entry Type
+export interface JournalEntry {
+    id: string; // uuid
+    user_id: string; // uuid
+    entry_date: string; // date
+    content: string;
+    ai_reflection?: string;
+    mental_health_score?: number;
+    happiness_score?: number;
+    accountability_score?: number;
+    stress_score?: number;
+    burnout_risk_score?: number;
+    visible_to_therapist?: boolean;
+    created_at?: string;
+    updated_at?: string;
+    mood?: string;
+}
+// Journal Chat Types
+export type ChatMode = "quick_reflect" | "deep_reflect";
+
+export interface JournalChatConversation {
+    id: string; // uuid
+    user_id: string; // uuid
+    title?: string; // nullable, default 'New Conversation'
+    chat_mode: ChatMode;
+    created_at?: string; // nullable, timestamp
+    updated_at?: string; // nullable, timestamp
+}
+
+export interface JournalChatMessage {
+    id: string; // uuid
+    conversation_id: string; // uuid
+    role: "user" | "assistant";
+    content: string;
+    created_at?: string; // nullable, timestamp
+}
 export type SubscriptionPlan = 'basic' | 'intermediate' | 'advanced';
 
 export interface SubscriptionPlanDetails {
