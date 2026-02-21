@@ -413,25 +413,32 @@ async function handlePaymentSucceededOrProcessing(data: DodoPaymentData) {
 
     if (!userId || !planName) return; // one-time payment without subscription context
 
-    // Check if subscription already active to avoid double-activation
-    const { count } = await supabaseAdmin
-        .from("user_subscriptions")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("status", "active");
+    // Check if this exact subscription is already active (avoid double-activation)
+    if (data.subscription_id) {
+        const { data: existing } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select("id")
+            .eq("dodo_subscription_id", data.subscription_id)
+            .eq("status", "active")
+            .maybeSingle();
 
-    if ((count ?? 0) === 0) {
-        await activateSubscription({
-            userId,
-            planName,
-            billingCycle,
-            dodoSubscriptionId: data.subscription_id ?? undefined,
-            dodoCustomerId: data.customer?.customer_id,
-            amountCents: data.total_amount,
-            currency: data.currency,
-        });
-        console.log(`[webhook] payment.succeeded → activated sub for user=${userId}`);
+        if (existing) {
+            console.log(`[webhook] Subscription ${data.subscription_id} already active, skipping activation`);
+            return;
+        }
     }
+
+    // Activate the subscription
+    await activateSubscription({
+        userId,
+        planName,
+        billingCycle,
+        dodoSubscriptionId: data.subscription_id ?? undefined,
+        dodoCustomerId: data.customer?.customer_id,
+        amountCents: data.total_amount,
+        currency: data.currency,
+    });
+    console.log(`[webhook] payment.succeeded → activated ${planName} for user=${userId}`);
 }
 
 async function handlePaymentFailed(data: DodoPaymentData) {

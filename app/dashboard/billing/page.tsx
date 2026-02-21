@@ -106,23 +106,33 @@ function BillingContent() {
     useEffect(() => {
         async function initialize() {
             if (session === "success") {
-                // Attempt instant activation
+                // Retrieve the plan from sessionStorage
+                const pendingPlan = sessionStorage.getItem("pending_plan") ?? "basic";
+                const pendingBillingCycle = sessionStorage.getItem("pending_billing_cycle") ?? "monthly";
+
+                // Clear from storage
+                sessionStorage.removeItem("pending_plan");
+                sessionStorage.removeItem("pending_billing_cycle");
+
+                // Attempt instant activation with correct plan
                 try {
                     const activateRes = await fetch("/api/subscription/activate", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             subscriptionId: subscriptionId ?? null,
-                            billingCycle,
+                            planName: pendingPlan,
+                            billingCycle: pendingBillingCycle,
                         }),
                     });
 
                     if (activateRes.ok) {
                         const data = await activateRes.json();
-                        const plan = data.plan ?? "basic";
+                        const plan = data.plan ?? pendingPlan;
                         setCurrentPlan(plan);
+                        const planDisplay = plans.find(p => p.id === plan)?.displayName ?? plan;
                         setSuccessMessage(
-                            `🎉 Your ${plan.charAt(0).toUpperCase() + plan.slice(1)} plan is now active!`
+                            `🎉 Your ${planDisplay} plan is now active!`
                         );
                     } else {
                         setSuccessMessage("✅ Payment received! Activating your subscription...");
@@ -138,7 +148,6 @@ function BillingContent() {
             setLoading(false);
         }
         initialize();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [session, subscriptionId]);
 
     async function loadCurrentSubscription() {
@@ -173,6 +182,9 @@ function BillingContent() {
 
             const data = await res.json();
             if (data.checkout_url) {
+                // Store plan selection in sessionStorage so we can retrieve it after redirect
+                sessionStorage.setItem("pending_plan", planId);
+                sessionStorage.setItem("pending_billing_cycle", billingCycle);
                 window.location.href = data.checkout_url;
             }
         } catch (error) {

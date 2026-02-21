@@ -24,8 +24,37 @@ export async function POST(request: NextRequest) {
 
         const body = await request.json();
         const subscriptionId: string | null = body.subscriptionId ?? null;
-        const planName: string = body.planName ?? "basic";
+        let planName: string = body.planName ?? null;
         const billingCycle: string = body.billingCycle ?? "monthly";
+
+        // If no planName provided but we have subscriptionId, try to fetch from Dodo
+        if (!planName && subscriptionId) {
+            try {
+                const dodoUrl = process.env.DODO_PAYMENTS_ENVIRONMENT === "test_mode"
+                    ? "https://test.dodopayments.com"
+                    : "https://live.dodopayments.com";
+
+                const dodoRes = await fetch(`${dodoUrl}/subscriptions/${subscriptionId}`, {
+                    headers: {
+                        Authorization: `Bearer ${process.env.DODO_PAYMENTS_API_KEY}`,
+                    },
+                });
+
+                if (dodoRes.ok) {
+                    const dodoData = await dodoRes.json();
+                    planName = dodoData.metadata?.plan_name ?? "basic";
+                    console.log(`[activate] Fetched plan from Dodo: ${planName}`);
+                } else {
+                    planName = "basic";
+                    console.warn("[activate] Failed to fetch subscription from Dodo, defaulting to basic");
+                }
+            } catch (err) {
+                console.error("[activate] Error fetching from Dodo:", err);
+                planName = "basic";
+            }
+        } else if (!planName) {
+            planName = "basic";
+        }
 
         // Look up plan price so we always have a valid amount
         const { data: plan } = await supabaseAdmin
@@ -48,12 +77,52 @@ export async function POST(request: NextRequest) {
             periodEnd.setMonth(periodEnd.getMonth() + 1);
         }
 
-        // Deactivate any existing active subscription for this user
-        await supabaseAdmin
+        // Check if webhook already activated this subscription
+        if (subscriptionId) {
+            const { data: existing } = await supabaseAdmin
+                .from("user_subscriptions")
+                .select("*")
+                .eq("dodo_subscription_id", subscriptionId)
+                .eq("status", "active")
+                .maybeSingle();
+
+            if (existing) {
+                console.log(`[activate] Subscription ${subscriptionId} already active via webhook`);
+                return NextResponse.json({
+                    success: true,
+                    plan: existing.plan_name,
+                    status: "active",
+                    source: "webhook"
+                });
+            }
+        }
+
+        // Check if there's already an active subscription for this user
+        const { data: currentSub } = await supabaseAdmin
             .from("user_subscriptions")
-            .update({ status: "superseded", updated_at: now.toISOString() })
+            .select("*")
             .eq("user_id", user.id)
-            .eq("status", "active");
+            .eq("status", "active")
+            .maybeSingle();
+
+        // If there's an active sub with the same plan, just return success
+        if (currentSub && currentSub.plan_name === planName) {
+            console.log(`[activate] User ${user.id} already has active ${planName} plan`);
+            return NextResponse.json({
+                success: true,
+                plan: planName,
+                status: "active",
+                source: "existing"
+            });
+        }
+
+        // Deactivate any existing active subscription for this user
+        if (currentSub) {
+            await supabaseAdmin
+                .from("user_subscriptions")
+                .update({ status: "superseded", updated_at: now.toISOString() })
+                .eq("id", currentSub.id);
+        }
 
         // Insert the new active subscription
         const { error: insertError } = await supabaseAdmin
@@ -72,8 +141,12 @@ export async function POST(request: NextRequest) {
 
         if (insertError) {
             console.error("[activate] Insert error:", insertError);
-            return NextResponse.json({ error: "Failed to activate subscription" }, { status: 500 });
+            return NextResponse.json({ error: "Failed to activate subscription", details: insertError.message }, { status: 500 });
         }
+
+        console.log(`[activate] Successfully activated ${planName} for user ${user.id}`);
+
+        console.log(`[activate] Successfully activated ${planName} for user ${user.id}`);
 
         // Reflect plan on user_profiles (best-effort)
         await supabaseAdmin
@@ -81,7 +154,7 @@ export async function POST(request: NextRequest) {
             .update({ subscription_plan: planName })
             .eq("id", user.id);
 
-        return NextResponse.json({ success: true, plan: planName, status: "active" });
+        return NextResponse.json({ success: true, plan: planName, status: "active", source: "manual" });
     } catch (error) {
         console.error("[activate] Error:", error);
         return NextResponse.json({ error: "Internal server error" }, { status: 500 });
