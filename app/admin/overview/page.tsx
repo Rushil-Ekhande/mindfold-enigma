@@ -1,5 +1,5 @@
 // ============================================================================
-// Admin Dashboard — Enhanced Overview Page with Charts & Analytics
+// Admin Dashboard — Enhanced Overview Page with Real Analytics
 // ============================================================================
 
 "use client";
@@ -14,6 +14,7 @@ import {
     TrendingUp,
     Activity,
     CreditCard,
+    ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -36,6 +37,16 @@ interface DashboardStats {
         type: string;
         date: string;
     }>;
+    changes: {
+        users: number;
+        therapists: number;
+        revenue: number;
+        subscriptions: number;
+        entries: number;
+        subscriptionRevenue: number;
+        therapistEarnings: number;
+        pendingVerifications: number;
+    };
 }
 
 export default function AdminOverviewPage() {
@@ -75,6 +86,18 @@ export default function AdminOverviewPage() {
         );
     }
 
+    const formatChange = (change: number) => {
+        if (change === 0) return "0%";
+        const sign = change > 0 ? "+" : "";
+        return `${sign}${change}%`;
+    };
+
+    const getChangeColor = (change: number) => {
+        if (change > 0) return "text-success";
+        if (change < 0) return "text-danger";
+        return "text-muted";
+    };
+
     const metrics = [
         {
             label: "Total Users",
@@ -82,7 +105,7 @@ export default function AdminOverviewPage() {
             icon: Users,
             color: "text-indigo-600",
             bg: "bg-indigo-50",
-            change: "+12%",
+            change: stats.changes.users,
         },
         {
             label: "Total Therapists",
@@ -90,7 +113,7 @@ export default function AdminOverviewPage() {
             icon: UserCheck,
             color: "text-emerald-600",
             bg: "bg-emerald-50",
-            change: "+8%",
+            change: stats.changes.therapists,
         },
         {
             label: "Total Revenue",
@@ -98,7 +121,7 @@ export default function AdminOverviewPage() {
             icon: DollarSign,
             color: "text-green-600",
             bg: "bg-green-50",
-            change: "+23%",
+            change: stats.changes.revenue,
         },
         {
             label: "Active Subscriptions",
@@ -106,7 +129,7 @@ export default function AdminOverviewPage() {
             icon: CreditCard,
             color: "text-blue-600",
             bg: "bg-blue-50",
-            change: "+15%",
+            change: stats.changes.subscriptions,
         },
         {
             label: "Pending Verifications",
@@ -114,7 +137,7 @@ export default function AdminOverviewPage() {
             icon: Clock,
             color: "text-amber-600",
             bg: "bg-amber-50",
-            change: "-5%",
+            change: stats.changes.pendingVerifications,
         },
         {
             label: "Total Entries",
@@ -122,7 +145,7 @@ export default function AdminOverviewPage() {
             icon: BookOpen,
             color: "text-purple-600",
             bg: "bg-purple-50",
-            change: "+34%",
+            change: stats.changes.entries,
         },
         {
             label: "Subscription Revenue",
@@ -130,7 +153,7 @@ export default function AdminOverviewPage() {
             icon: TrendingUp,
             color: "text-cyan-600",
             bg: "bg-cyan-50",
-            change: "+19%",
+            change: stats.changes.subscriptionRevenue,
         },
         {
             label: "Therapist Earnings",
@@ -138,7 +161,34 @@ export default function AdminOverviewPage() {
             icon: Activity,
             color: "text-pink-600",
             bg: "bg-pink-50",
-            change: "+27%",
+            change: stats.changes.therapistEarnings,
+        },
+    ];
+
+    const quickActions = [
+        {
+            label: "View All Users",
+            href: "/admin/users",
+            icon: Users,
+            description: "Manage user accounts",
+        },
+        {
+            label: "Review Therapists",
+            href: "/admin/therapists",
+            icon: UserCheck,
+            description: "Verify therapist applications",
+        },
+        {
+            label: "View Transactions",
+            href: "/admin/transactions",
+            icon: DollarSign,
+            description: "Monitor financial activity",
+        },
+        {
+            label: "Edit Landing Page",
+            href: "/admin/landing",
+            icon: Activity,
+            description: "Update website content",
         },
     ];
 
@@ -147,7 +197,7 @@ export default function AdminOverviewPage() {
             {/* Header */}
             <div className="mb-8 flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+                    <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
                     <p className="text-muted mt-1">
                         Comprehensive platform analytics and insights
                     </p>
@@ -173,28 +223,66 @@ export default function AdminOverviewPage() {
             </div>
 
             {/* Stat Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                {metrics.map((metric) => (
-                    <div
-                        key={metric.label}
-                        className="bg-white rounded-xl border border-border p-6 hover:shadow-md transition-shadow"
-                    >
-                        <div className="flex items-start justify-between mb-3">
-                            <div
-                                className={`w-10 h-10 ${metric.bg} rounded-lg flex items-center justify-center`}
-                            >
-                                <metric.icon className={`h-5 w-5 ${metric.color}`} />
+            <div className="mb-8">
+                <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-primary" />
+                    Platform Statistics
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {metrics.map((metric) => (
+                        <div
+                            key={metric.label}
+                            className="bg-white rounded-xl border border-border p-5 hover:shadow-md transition-shadow"
+                        >
+                            <div className="flex items-start justify-between mb-3">
+                                <div
+                                    className={`w-12 h-12 ${metric.bg} rounded-lg flex items-center justify-center`}
+                                >
+                                    <metric.icon className={`h-6 w-6 ${metric.color}`} />
+                                </div>
+                                <span className={`text-xs font-medium ${getChangeColor(metric.change)}`}>
+                                    {formatChange(metric.change)}
+                                </span>
                             </div>
-                            <span className="text-xs font-medium text-success">
-                                {metric.change}
-                            </span>
+                            <p className="text-sm text-muted mb-1">{metric.label}</p>
+                            <p className="text-2xl font-bold text-foreground">
+                                {metric.value}
+                            </p>
                         </div>
-                        <p className="text-sm text-muted">{metric.label}</p>
-                        <p className="text-2xl font-bold text-foreground mt-1">
-                            {metric.value}
-                        </p>
+                    ))}
+                </div>
+            </div>
+
+            {/* Quick Actions - Moved to middle with clear separation */}
+            <div className="mb-8 bg-linear-to-br from-primary/5 to-indigo-50 rounded-2xl p-6 border border-primary/10">
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <TrendingUp className="h-5 w-5 text-white" />
                     </div>
-                ))}
+                    <h2 className="text-lg font-semibold text-foreground">Quick Actions</h2>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {quickActions.map((action) => (
+                        <Link
+                            key={action.label}
+                            href={action.href}
+                            className="bg-white rounded-xl border border-border p-5 hover:border-primary/50 hover:shadow-lg transition-all group"
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center group-hover:bg-gray-100 transition-colors">
+                                    <action.icon className="h-6 w-6 text-gray-700" />
+                                </div>
+                                <ArrowRight className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors" />
+                            </div>
+                            <h3 className="font-semibold text-foreground mb-1">
+                                {action.label}
+                            </h3>
+                            <p className="text-sm text-muted">
+                                {action.description}
+                            </p>
+                        </Link>
+                    ))}
+                </div>
             </div>
 
             {/* Charts Row */}
@@ -218,7 +306,7 @@ export default function AdminOverviewPage() {
                 </div>
             </div>
 
-            {/* Revenue Breakdown */}
+            {/* Revenue Breakdown & Top Therapists */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <div className="bg-white rounded-xl border border-border p-6">
                     <h3 className="font-semibold text-foreground mb-4">
@@ -226,15 +314,15 @@ export default function AdminOverviewPage() {
                     </h3>
                     <div className="space-y-4">
                         <div>
-                            <div className="flex justify-between text-sm mb-1">
+                            <div className="flex justify-between text-sm mb-2">
                                 <span className="text-muted">Subscriptions</span>
                                 <span className="font-medium text-foreground">
                                     ${stats.subscriptionRevenue.toLocaleString()}
                                 </span>
                             </div>
-                            <div className="w-full bg-muted-bg rounded-full h-2">
+                            <div className="w-full bg-muted-bg rounded-full h-2.5">
                                 <div
-                                    className="bg-primary h-2 rounded-full"
+                                    className="bg-primary h-2.5 rounded-full transition-all"
                                     style={{
                                         width: `${
                                             (stats.subscriptionRevenue / stats.totalRevenue) *
@@ -245,15 +333,15 @@ export default function AdminOverviewPage() {
                             </div>
                         </div>
                         <div>
-                            <div className="flex justify-between text-sm mb-1">
+                            <div className="flex justify-between text-sm mb-2">
                                 <span className="text-muted">Therapist Payments</span>
                                 <span className="font-medium text-foreground">
                                     ${stats.therapistEarnings.toLocaleString()}
                                 </span>
                             </div>
-                            <div className="w-full bg-muted-bg rounded-full h-2">
+                            <div className="w-full bg-muted-bg rounded-full h-2.5">
                                 <div
-                                    className="bg-emerald-500 h-2 rounded-full"
+                                    className="bg-emerald-500 h-2.5 rounded-full transition-all"
                                     style={{
                                         width: `${
                                             (stats.therapistEarnings / stats.totalRevenue) * 100
@@ -274,12 +362,12 @@ export default function AdminOverviewPage() {
                         {stats.topTherapists.map((therapist, idx) => (
                             <div
                                 key={idx}
-                                className="flex items-center justify-between p-3 bg-muted-bg/30 rounded-lg"
+                                className="flex items-center justify-between p-3 bg-muted-bg/30 rounded-lg hover:bg-muted-bg/50 transition-colors"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                                         <span className="text-sm font-bold text-primary">
-                                            {idx + 1}
+                                            #{idx + 1}
                                         </span>
                                     </div>
                                     <div>
@@ -301,7 +389,7 @@ export default function AdminOverviewPage() {
             </div>
 
             {/* Recent Transactions */}
-            <div className="bg-white rounded-xl border border-border p-6 mb-8">
+            <div className="bg-white rounded-xl border border-border p-6">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-foreground">Recent Transactions</h3>
                     <Link
@@ -331,16 +419,16 @@ export default function AdminOverviewPage() {
                         </thead>
                         <tbody>
                             {stats.recentTransactions.map((transaction) => (
-                                <tr key={transaction.id} className="border-b border-border">
+                                <tr key={transaction.id} className="border-b border-border hover:bg-muted-bg/30 transition-colors">
                                     <td className="py-3 px-4 text-sm text-foreground">
                                         {transaction.user}
                                     </td>
                                     <td className="py-3 px-4">
                                         <span
-                                            className={`text-xs px-2 py-1 rounded-full ${
+                                            className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                                                 transaction.type === "subscription"
-                                                    ? "bg-blue-50 text-blue-600"
-                                                    : "bg-green-50 text-green-600"
+                                                    ? "bg-blue-50 text-blue-700"
+                                                    : "bg-green-50 text-green-700"
                                             }`}
                                         >
                                             {transaction.type}
@@ -356,37 +444,6 @@ export default function AdminOverviewPage() {
                             ))}
                         </tbody>
                     </table>
-                </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white rounded-xl border border-border p-6">
-                <h2 className="font-semibold text-foreground mb-4">Quick Actions</h2>
-                <div className="flex flex-wrap gap-3">
-                    <Link
-                        href="/admin/users"
-                        className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
-                    >
-                        View All Users
-                    </Link>
-                    <Link
-                        href="/admin/therapists"
-                        className="bg-emerald-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-emerald-700 transition-colors"
-                    >
-                        Review Therapists
-                    </Link>
-                    <Link
-                        href="/admin/transactions"
-                        className="bg-muted-bg text-foreground px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-muted-bg/70 transition-colors border border-border"
-                    >
-                        View Transactions
-                    </Link>
-                    <Link
-                        href="/admin/landing"
-                        className="bg-muted-bg text-foreground px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-muted-bg/70 transition-colors border border-border"
-                    >
-                        Edit Landing Page
-                    </Link>
                 </div>
             </div>
         </div>

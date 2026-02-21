@@ -30,7 +30,7 @@ export default function TherapistDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-muted-bg/30">
+    <div className="min-h-screen bg-gray-50">
       <DashboardSidebar
         links={therapistLinks}
         roleLabel="Therapist Dashboard"
