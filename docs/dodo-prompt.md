@@ -1,4 +1,4 @@
-Now i am going to implemment the dodo payment system for subsripiton the user would be able to choose from 3 plans - basic, intermidiate and advance.
+Now i am want you to implemment the dodo payment system for subsripiton the user would be able to choose from 3 plans - basic, intermidiate and advance.
 
 THese are the plans change the frontend and ui according to these too:
 

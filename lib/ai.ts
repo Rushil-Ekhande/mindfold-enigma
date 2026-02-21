@@ -1,15 +1,15 @@
 // ============================================================================
-// Google Gemini AI Helper
-// Wraps Google AI SDK for journal analysis and chat features
+// OpenAI Helper
+// Wraps OpenAI SDK for journal analysis and chat features
 // ============================================================================
 
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 
-let _ai: GoogleGenAI | null = null;
+let _ai: OpenAI | null = null;
 
-function getAI(): GoogleGenAI {
+function getAI(): OpenAI {
     if (!_ai) {
-        _ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_AI_API_KEY! });
+        _ai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
     }
     return _ai;
 }
@@ -70,17 +70,16 @@ Please provide:
 
 Return ONLY valid JSON with these exact keys.`;
 
-    const response = await getAI().models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
+    const response = await getAI().chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
     });
 
     try {
-        const text = response.text ?? "";
-        // Extract JSON from the response (handle markdown code blocks)
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error("No JSON found in AI response");
-        return JSON.parse(jsonMatch[0]);
+        const text = response.choices[0]?.message?.content ?? "";
+        return JSON.parse(text);
     } catch {
         // Fallback scores if parsing fails
         return {
@@ -117,21 +116,23 @@ export async function askJournal(
             ? `You are analyzing the user's recent journal entries (${entryCount} ${entryCount === 1 ? "entry" : "entries"}). Give a focused, concise answer based on what's available. Keep your response between 500-800 characters.`
             : `You are performing a deep analysis of the user's journal history (${entryCount} ${entryCount === 1 ? "entry" : "entries"}). Give a thorough, detailed answer with patterns and insights based on what's available. Keep your response between 1000-1500 characters.`;
 
-    const response = await getAI().models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `${contextNote}
+    const systemPrompt = `${contextNote}
 
 You are an empathetic AI wellness companion. The user is asking a reflective question about their life based on their journal entries. Provide a personalized, thoughtful, and supportive answer.
 
-${entryCount < 5 ? "NOTE: The user has a limited number of entries, so base your response on what IS available rather than what's missing. Be encouraging about continuing to journal." : ""}
+${entryCount < 5 ? "NOTE: The user has a limited number of entries, so base your response on what IS available rather than what's missing. Be encouraging about continuing to journal." : ""}`;
 
-User's journal entries:
-${entriesText}
+    const userContent = `User's journal entries:\n${entriesText}\n\nUser's question: "${question}"\n\nProvide a detailed, personalized answer that references specific patterns or entries when relevant. Be empathetic and constructive.`;
 
-User's question: "${question}"
-
-Provide a detailed, personalized answer that references specific patterns or entries when relevant. Be empathetic and constructive.`,
+    const response = await getAI().chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userContent },
+        ],
+        temperature: 0.7,
     });
 
-    return response.text ?? "I wasn't able to generate a response. Please try again.";
+    return response.choices[0]?.message?.content ?? "I wasn't able to generate a response. Please try again.";
 }
+
