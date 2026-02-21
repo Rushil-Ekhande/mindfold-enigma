@@ -20,21 +20,34 @@ export async function GET(request: NextRequest) {
         const searchParams = request.nextUrl.searchParams;
         const range = searchParams.get("range") || "30d";
 
-        // Calculate date range
+        // Calculate date ranges for comparison
         const now = new Date();
         const daysAgo = range === "7d" ? 7 : range === "30d" ? 30 : range === "90d" ? 90 : 365;
         const startDate = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+        const previousPeriodStart = new Date(startDate.getTime() - daysAgo * 24 * 60 * 60 * 1000);
 
-        // Total counts
+        // Total counts with previous period comparison
         const { count: totalUsers } = await supabase
             .from("profiles")
             .select("*", { count: "exact", head: true })
             .eq("role", "user");
 
+        const { count: previousUsers } = await supabase
+            .from("profiles")
+            .select("*", { count: "exact", head: true })
+            .eq("role", "user")
+            .lt("created_at", startDate.toISOString());
+
         const { count: totalTherapists } = await supabase
             .from("profiles")
             .select("*", { count: "exact", head: true })
             .eq("role", "therapist");
+
+        const { count: previousTherapists } = await supabase
+            .from("profiles")
+            .select("*", { count: "exact", head: true })
+            .eq("role", "therapist")
+            .lt("created_at", startDate.toISOString());
 
         const { count: pendingVerifications } = await supabase
             .from("therapist_profiles")
@@ -45,19 +58,57 @@ export async function GET(request: NextRequest) {
             .from("journal_entries")
             .select("*", { count: "exact", head: true });
 
-        // Revenue calculations
+        const { count: previousEntries } = await supabase
+            .from("journal_entries")
+            .select("*", { count: "exact", head: true })
+            .lt("entry_date", startDate.toISOString());
+
+        // Revenue calculations with previous period
+        const { data: currentTransactions } = await supabase
+            .from("billing_transactions")
+            .select("amount, transaction_type, status")
+            .eq("status", "completed")
+            .gte("created_at", startDate.toISOString());
+
+        const { data: previousTransactions } = await supabase
+            .from("billing_transactions")
+            .select("amount, transaction_type, status")
+            .eq("status", "completed")
+            .gte("created_at", previousPeriodStart.toISOString())
+            .lt("created_at", startDate.toISOString());
+
         const { data: allTransactions } = await supabase
             .from("billing_transactions")
             .select("amount, transaction_type, status")
             .eq("status", "completed");
 
         const totalRevenue = allTransactions?.reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+        const currentRevenue = currentTransactions?.reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+        const previousRevenue = previousTransactions?.reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+
         const subscriptionRevenue =
             allTransactions
                 ?.filter((t) => t.transaction_type === "subscription")
                 .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+        const currentSubRevenue =
+            currentTransactions
+                ?.filter((t) => t.transaction_type === "subscription")
+                .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+        const previousSubRevenue =
+            previousTransactions
+                ?.filter((t) => t.transaction_type === "subscription")
+                .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+
         const therapistEarnings =
             allTransactions
+                ?.filter((t) => t.transaction_type === "therapist_payment")
+                .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+        const currentTherapistEarnings =
+            currentTransactions
+                ?.filter((t) => t.transaction_type === "therapist_payment")
+                .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
+        const previousTherapistEarnings =
+            previousTransactions
                 ?.filter((t) => t.transaction_type === "therapist_payment")
                 .reduce((sum, t) => sum + Number(t.amount), 0) || 0;
 
@@ -69,7 +120,30 @@ export async function GET(request: NextRequest) {
             .eq("status", "completed")
             .gte("created_at", new Date(now.getTime() - 31 * 24 * 60 * 60 * 1000).toISOString());
 
+        const { data: previousSubs } = await supabase
+            .from("billing_transactions")
+            .select("user_id")
+            .eq("transaction_type", "subscription")
+            .eq("status", "completed")
+            .gte("created_at", new Date(previousPeriodStart.getTime()).toISOString())
+            .lt("created_at", startDate.toISOString());
+
         const activeSubscriptions = new Set(recentSubs?.map((s) => s.user_id)).size;
+        const previousActiveSubscriptions = new Set(previousSubs?.map((s) => s.user_id)).size;
+
+        // Calculate percentage changes
+        const calculateChange = (current: number, previous: number) => {
+            if (previous === 0) return current > 0 ? 100 : 0;
+            return Math.round(((current - previous) / previous) * 100);
+        };
+
+        const userChange = calculateChange(totalUsers || 0, previousUsers || 0);
+        const therapistChange = calculateChange(totalTherapists || 0, previousTherapists || 0);
+        const revenueChange = calculateChange(currentRevenue, previousRevenue);
+        const subscriptionChange = calculateChange(activeSubscriptions, previousActiveSubscriptions);
+        const entryChange = calculateChange((totalEntries || 0) - (previousEntries || 0), previousEntries || 0);
+        const subRevenueChange = calculateChange(currentSubRevenue, previousSubRevenue);
+        const therapistEarningsChange = calculateChange(currentTherapistEarnings, previousTherapistEarnings);
 
         // User growth over time
         const { data: userGrowthData } = await supabase
@@ -155,6 +229,17 @@ export async function GET(request: NextRequest) {
             revenueByMonth,
             topTherapists,
             recentTransactions: formattedTransactions,
+            // Percentage changes
+            changes: {
+                users: userChange,
+                therapists: therapistChange,
+                revenue: revenueChange,
+                subscriptions: subscriptionChange,
+                entries: entryChange,
+                subscriptionRevenue: subRevenueChange,
+                therapistEarnings: therapistEarningsChange,
+                pendingVerifications: 0, // This doesn't have a meaningful comparison
+            },
         });
     } catch (error) {
         console.error("Analytics error:", error);

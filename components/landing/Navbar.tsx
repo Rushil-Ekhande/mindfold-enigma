@@ -64,7 +64,7 @@ export default function Navbar() {
               {content.brandName}
             </span>
             <span className="text-[10px] text-muted font-medium leading-tight">
-              By Teamtailor
+              By FRIEREN
             </span>
           </div>
         </Link>
