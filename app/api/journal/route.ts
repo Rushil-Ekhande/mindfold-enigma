@@ -83,9 +83,13 @@ export async function POST(request: NextRequest) {
     try {
         analysis = await analyzeJournalEntry({ entryDate: entry_date, currentEntry: content });
         console.log("[Journal API] AI response:", analysis);
-    } catch (err) {
+    } catch (err: unknown) {
         console.error("[Journal API] AI analysis failed:", err);
-        if (err && err.message && (err.message.includes("quota") || err.message.includes("credit"))) {
+        if (
+            err instanceof Error &&
+            err.message &&
+            (err.message.includes("quota") || err.message.includes("credit"))
+        ) {
             console.error("[Journal API] AI credits exhausted or quota reached.");
         }
         // Fallback values
