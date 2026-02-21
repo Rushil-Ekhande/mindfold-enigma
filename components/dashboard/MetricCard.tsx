@@ -99,56 +99,56 @@ export default function MetricCard({
           height: `${value}%`,
         }}
       >
-        {/* First wave layer */}
-        <div className="absolute inset-x-0 bottom-0" style={{ height: "60px" }}>
+        {/* First wave layer - fills entire container */}
+        <div className="absolute inset-0">
           <svg
             className="wave-layer absolute"
             style={{
-              bottom: 0,
+              top: 0,
               left: 0,
               width: "200%",
               height: "100%",
             }}
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1440 120"
+            viewBox="0 0 1440 320"
             preserveAspectRatio="none"
           >
             <path
               fill={waveColors.primary}
-              fillOpacity="0.5"
-              d="M0,60 C240,90 480,30 720,60 C960,90 1200,30 1440,60 L1440,120 L0,120 Z"
+              fillOpacity="0.8"
+              d="M0,80 C240,120 480,40 720,80 C960,120 1200,40 1440,80 L1440,320 L0,320 Z"
             />
             <path
               fill={waveColors.primary}
-              fillOpacity="0.5"
-              d="M1440,60 C1680,90 1920,30 2160,60 C2400,90 2640,30 2880,60 L2880,120 L1440,120 Z"
+              fillOpacity="0.8"
+              d="M1440,80 C1680,120 1920,40 2160,80 C2400,120 2640,40 2880,80 L2880,320 L1440,320 Z"
             />
           </svg>
         </div>
 
-        {/* Second wave layer */}
-        <div className="absolute inset-x-0 bottom-0" style={{ height: "50px" }}>
+        {/* Second wave layer - fills entire container */}
+        <div className="absolute inset-0">
           <svg
             className="wave-layer-2 absolute"
             style={{
-              bottom: 0,
+              top: 0,
               left: 0,
               width: "200%",
               height: "100%",
             }}
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 1440 100"
+            viewBox="0 0 1440 320"
             preserveAspectRatio="none"
           >
             <path
               fill={waveColors.secondary}
-              fillOpacity="0.6"
-              d="M0,50 C320,70 640,30 960,50 C1280,70 1440,30 1440,50 L1440,100 L0,100 Z"
+              fillOpacity="0.7"
+              d="M0,70 C320,100 640,40 960,70 C1280,100 1440,40 1440,70 L1440,320 L0,320 Z"
             />
             <path
               fill={waveColors.secondary}
-              fillOpacity="0.6"
-              d="M1440,50 C1760,70 2080,30 2400,50 C2720,70 2880,30 2880,50 L2880,100 L1440,100 Z"
+              fillOpacity="0.7"
+              d="M1440,70 C1760,100 2080,40 2400,70 C2720,100 2880,40 2880,70 L2880,320 L1440,320 Z"
             />
           </svg>
         </div>
