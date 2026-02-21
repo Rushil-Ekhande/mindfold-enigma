@@ -273,10 +273,10 @@ function BillingContent() {
                             <div
                                 key={plan.id}
                                 className={`relative rounded-2xl border-2 p-8 transition-all duration-200 ${isActive
-                                        ? "border-blue-500 bg-blue-50 shadow-lg"
-                                        : isHighlighted
-                                            ? "border-primary bg-primary/5 shadow-xl scale-105"
-                                            : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-lg"
+                                    ? "border-blue-500 bg-blue-50 shadow-lg"
+                                    : isHighlighted
+                                        ? "border-primary bg-primary/5 shadow-xl scale-105"
+                                        : "border-gray-200 bg-white hover:border-primary/50 hover:shadow-lg"
                                     }`}
                             >
                                 {/* Best Value Badge */}
@@ -343,12 +343,12 @@ function BillingContent() {
                                     onClick={() => handleSubscribe(plan.id)}
                                     disabled={isActive || loadingPlan === plan.id || plan.id === "free"}
                                     className={`w-full py-3 px-6 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 ${isActive
-                                            ? "bg-blue-100 text-blue-700 cursor-not-allowed"
-                                            : plan.id === "free"
-                                                ? "bg-gray-100 text-gray-500 cursor-default"
-                                                : isHighlighted
-                                                    ? "bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl"
-                                                    : "bg-gray-900 text-white hover:bg-gray-800"
+                                        ? "bg-blue-100 text-blue-700 cursor-not-allowed"
+                                        : plan.id === "free"
+                                            ? "bg-gray-100 text-gray-500 cursor-default"
+                                            : isHighlighted
+                                                ? "bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-xl"
+                                                : "bg-gray-900 text-white hover:bg-gray-800"
                                         }`}
                                 >
                                     {loadingPlan === plan.id ? (
